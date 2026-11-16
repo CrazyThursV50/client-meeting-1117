@@ -98,3 +98,17 @@ body.noq .card:has(> .card-header .nav-tabs) > .card-header { display: none; }
 .yrow select { width: auto; flex: 1; }
 /* Compare with: agency, then component */
 .cmp select { margin-bottom: 4px; }
+
+/* Modeling experiment: Q1 only; the existing chart nodes and calculations are reused. */
+.q1-module-layout { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 28px; align-items: start; }
+.q1-module-list h6 { font-size: 0.92rem; font-weight: 600; margin: 0 0 12px; }
+.q1-module-card { border: 1px solid #c9d6ea; border-radius: 6px; background: #fff; }
+.q1-module-title { padding: 12px; border-bottom: 1px solid #e3e7ee; font-weight: 600; }
+.q1-module-title strong { color: #4582cc; margin-right: 8px; }
+.q1-module-field { display: flex; gap: 8px; align-items: baseline; padding: 10px 12px; font-size: 0.85rem; }
+.q1-module-field span { width: 10px; height: 10px; flex: 0 0 10px; border-radius: 2px; }
+.q1-module-charts > .pair { flex-direction: column; gap: 28px; }
+.q1-module-charts { min-width: 0; }
+.q1-module-charts figure { max-width: 100% !important; }
+.q1-module-charts figure svg { max-width: 100%; height: auto; }
+@media (max-width: 800px) { .q1-module-layout { grid-template-columns: 1fr; gap: 16px; } }
