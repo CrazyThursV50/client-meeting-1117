@@ -16,7 +16,7 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
           <li><b>Build your own</b>: open a table on the left and tick its columns, then choose what to show: each column over time, added up, shares, A ÷ B, A − B, growth from the first year, change from the year before, or, for the last year, column by column, the largest agencies or components, and one column against another. “Customize” on a question's extra views opens them here.</li></ol>
         <p class="fd-small">The dashboard’s name in the top bar goes back to the overview; so does clicking a selected question again. “Reset” (top right) puts every choice back to how the dashboard opens: all agencies, all years, nothing compared, all reporting agencies added up, and the appeals reversal rate out of appeals decided on the merits. It stays on the page you are on.</p></section>
       <section><h3>Choosing what you see</h3>
-        <dl><dt>Agency</dt><dd>“All agencies (government total)”, or one agency.</dd>
+        <dl><dt>Agency (under the title, with Component and Compare with)</dt><dd>“All agencies (government total)”, or one agency.</dd>
           <dt>Component</dt><dd>An office inside the agency you picked.</dd>
           <dt>Fiscal years (top right)</dt><dd>Pick All years, Last 10, Last 5 or the latest year; or drag the two handles on the year slider (the charts follow when you let go). Clicking a year moves the nearer handle there; double-clicking a year shows that year only. One-year views (distribution, exemptions, tables) use the last year chosen.</dd>
           <dt>Compare with (up to 5)</dt><dd>Adds agencies or components to the same chart; × removes one.</dd>
@@ -194,6 +194,27 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
   }
   new MutationObserver(scan).observe(document.documentElement, {childList: true, subtree: true});
   document.addEventListener("DOMContentLoaded", scan);
+})();
+
+/* ---------- The agency row in the header card: Agency, Component, Compare with and "Agencies added up in the total" are moved
+   out of the sidebar into a row under the title and the years. The cell boxes the dashboard draws them into are moved whole,
+   so the dashboard keeps redrawing them in place and every input works as before; the sidebar keeps the questions. ---------- */
+(function () {
+  const IDS = ["ojs-cell-17", "ojs-cell-18", "ojs-cell-21", "ojs-cell-22"];   // Agency, Component, Compare with, Agencies added up in the total
+  function place() {
+    const card = document.querySelector(".card.fd-card.fd-has-tl"), body = card && card.querySelector(":scope > .card-body");
+    const cells = IDS.map(id => document.getElementById(id));
+    if (!body || cells.some(c => !c)) return;
+    let bar = body.querySelector(":scope > .fd-acbar");
+    if (!bar) { bar = document.createElement("div"); bar.className = "fd-acbar"; bar.setAttribute("role", "group");
+      bar.setAttribute("aria-label", "Agency, component and comparison"); body.appendChild(bar) }
+    for (const c of cells) if (c.parentElement !== bar) bar.appendChild(c);
+    // the explanation under "Agencies added up in the total" becomes the label's tooltip (the form is redrawn when the agency changes)
+    const f = document.querySelector("#ojs-cell-22 form"), l = f && f.querySelector(":scope > label"), n = f && f.querySelector(".side-note");
+    if (l && n && !l.title) l.title = n.textContent.trim();
+  }
+  new MutationObserver(place).observe(document.documentElement, {childList: true, subtree: true});
+  document.addEventListener("DOMContentLoaded", place);
 })();
 
 /* ---------- "Clear all": resets Agency, Component and Compare with to how the page opens, in one step. Years, the question
