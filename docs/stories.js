@@ -18,7 +18,7 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
       <section><h3>Choosing what you see</h3>
         <dl><dt>Agency</dt><dd>“All agencies (government total)”, or one agency.</dd>
           <dt>Component</dt><dd>An office inside the agency you picked.</dd>
-          <dt>Fiscal years (top right)</dt><dd>Pick All years, Last 10, Last 5 or the latest year; or click a first year, then a last year. Click one year twice to see only that year. One-year views (distribution, exemptions, tables) use the last year chosen.</dd>
+          <dt>Fiscal years (top right)</dt><dd>Pick All years, Last 10, Last 5 or the latest year; or drag the two handles on the year slider (the charts follow when you let go). Clicking a year moves the nearer handle there; double-clicking a year shows that year only. One-year views (distribution, exemptions, tables) use the last year chosen.</dd>
           <dt>Compare with (up to 5)</dt><dd>Adds agencies or components to the same chart; × removes one.</dd>
           <dt>Agencies added up in the total</dt><dd>All reporting agencies (71–122 a year), or only the 70 that reported all 18 years, so a total does not grow just because more agencies report.</dd></dl>
         <p>Each question has two tabs:
@@ -72,28 +72,43 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
     .then(D => { D.ids.Agency = D.ids.Agency.map(fdAgency); return D }));
   const ev = el => el.dispatchEvent(new Event("change", {bubbles: true}));
 
-  // ---- fiscal years: presets and one button per year. Click a year, then another; the same year twice = one year
+  // ---- fiscal years: presets and a slider with two handles, one for the first year and one for the last. The handles may pass
+  // each other (the lower one is the first year); both on one year = that year only. The charts follow when a handle is let go.
+  // Clicking a year moves the nearer handle there; double-clicking a year shows that year only.
   const yearBox = () => document.querySelector(".years");
   const yearSel = () => { const w = yearBox(); return w ? [...w.querySelectorAll("select")] : [] };
   function buildYears(card) {
     const [a] = yearSel(); if (!a || card.querySelector(".fd-tl")) return;
     const ys = [...a.options].map(o => +o.value), first = ys[0], last = ys[ys.length - 1];   // the years in the data
     const presets = [["All years", first, last], ["Last 10", Math.max(first, last - 9), last], ["Last 5", Math.max(first, last - 4), last], [`FY${last}`, last, last]];
+    const pos = y => last === first ? 0 : (y - first) / (last - first) * 100;   // per cent along the track
     const box = document.createElement("div"); box.className = "tl fd-tl";
     box.innerHTML = `<div class="tl-top">${presets.map(([l, x, y]) => `<button type="button" class="tl-p" data-a="${x}" data-b="${y}">${l}</button>`).join("")}<span class="tl-label" aria-live="polite"></span></div>
-      <div class="tl-years">${ys.map(y => `<button type="button" class="tl-y" data-y="${y}" title="FY${y}">${String(y).slice(2)}</button>`).join("")}</div>`;
-    let anchor = null;   // first click of a range
+      <div class="tl-slider">
+        <div class="tl-track"><div class="tl-rail"><div class="tl-fill"></div></div>
+          <input type="range" class="tl-h" min="${first}" max="${last}" step="1" aria-label="First fiscal year">
+          <input type="range" class="tl-h" min="${first}" max="${last}" step="1" aria-label="Last fiscal year"></div>
+        <div class="tl-ticks">${ys.map(y => `<button type="button" class="tl-t" data-y="${y}" title="FY${y}" style="left:${pos(y)}%">${String(y).slice(2)}</button>`).join("")}</div>
+      </div>`;
+    const hs = [...box.querySelectorAll(".tl-h")], fill = box.querySelector(".tl-fill");
     const cur = () => { const [x, y] = yearSel().map(s => +s.value); return [Math.min(x, y), Math.max(x, y)] };
-    const draw = () => { const [lo, hi] = cur();
-      box.querySelectorAll(".tl-y").forEach(c => { const y = +c.dataset.y;
-        c.classList.toggle("on", anchor === null && y >= lo && y <= hi); c.classList.toggle("anchor", y === anchor);
-        c.classList.toggle("end", anchor === null && (y === lo || y === hi)); c.setAttribute("aria-pressed", y >= lo && y <= hi) });
-      box.querySelectorAll(".tl-p").forEach(p => p.classList.toggle("on", anchor === null && +p.dataset.a === lo && +p.dataset.b === hi));
-      box.querySelector(".tl-label").textContent = anchor !== null ? `From FY${anchor}: now click the last year` : lo === hi ? `FY${lo}` : `FY${lo}–FY${hi}` };
+    const shown = () => { const [x, y] = hs.map(h => +h.value); return [Math.min(x, y), Math.max(x, y)] };   // where the handles are now
+    const paint = (lo, hi) => {   // the track, the year labels and the presets for a range, while dragging too
+      fill.style.left = `${pos(lo)}%`; fill.style.width = `${pos(hi) - pos(lo)}%`;
+      box.querySelectorAll(".tl-t").forEach(t => { const y = +t.dataset.y; t.classList.toggle("on", y >= lo && y <= hi); t.classList.toggle("end", y === lo || y === hi) });
+      box.querySelectorAll(".tl-p").forEach(p => p.classList.toggle("on", +p.dataset.a === lo && +p.dataset.b === hi));
+      box.querySelector(".tl-label").textContent = lo === hi ? `FY${lo}` : `FY${lo}–FY${hi}` };
+    const draw = () => { const [lo, hi] = cur(); hs[0].value = String(lo); hs[1].value = String(hi); paint(lo, hi) };
     const set = (x, y) => { const [sa, sb] = yearSel(); sa.value = String(Math.min(x, y)); sb.value = String(Math.max(x, y)); ev(sb); draw() };   // the dashboard reads both
-    box.querySelectorAll(".tl-p").forEach(p => p.onclick = () => { anchor = null; set(+p.dataset.a, +p.dataset.b) });
-    box.querySelectorAll(".tl-y").forEach(c => c.onclick = () => { const y = +c.dataset.y;
-      if (anchor === null) { anchor = y; draw(); return } const x = anchor; anchor = null; set(x, y) });
+    box.querySelectorAll(".tl-p").forEach(p => p.onclick = () => set(+p.dataset.a, +p.dataset.b));
+    hs.forEach(h => { h.addEventListener("input", () => paint(...shown()));   // moving: only the slider changes
+      h.addEventListener("change", () => { const [lo, hi] = shown(), [clo, chi] = cur(); if (lo !== clo || hi !== chi) set(lo, hi); else draw() }) });   // let go (or a key): the charts follow
+    let clickTimer = null;
+    box.querySelectorAll(".tl-t").forEach(t => {
+      t.onclick = () => { const y = +t.dataset.y; clearTimeout(clickTimer);
+        clickTimer = setTimeout(() => { const [lo, hi] = cur();   // the nearer handle moves; outside the range, the end on that side
+          if (y < lo) set(y, hi); else if (y > hi) set(lo, y); else if (y - lo <= hi - y) set(y, hi); else set(lo, y) }, 220) };
+      t.ondblclick = () => { clearTimeout(clickTimer); set(+t.dataset.y, +t.dataset.y) } });
     yearSel().forEach(s => s.addEventListener("change", draw));
     card.classList.add("fd-has-tl"); (card.querySelector(".card-body") || card).appendChild(box);
     yearBox().classList.add("fd-hidden");   // the two dropdowns stay in the page, hidden

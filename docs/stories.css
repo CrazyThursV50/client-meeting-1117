@@ -29,7 +29,7 @@
 
 /* ---------- fiscal-year buttons ---------- */
 .fd-hidden { display: none !important; }
-.fd-has-tl > .card-body { padding-right: calc(min(470px, 46%) + 3.4rem); min-height: 6.9rem; }   /* room for the year buttons and the link button when the header is short */
+.fd-has-tl > .card-body { padding-right: calc(min(470px, 46%) + 3.4rem); min-height: 8.4rem; }   /* room for the year buttons and the link button when the header is short */
 .fd-tl { position: absolute; top: 0.7rem; right: 3rem; width: min(470px, 46%); }
 .card[data-full-screen="true"] .fd-tl { display: none; }
 .card[data-full-screen="true"].fd-has-tl > .card-body { padding-right: 1rem; }
@@ -39,11 +39,27 @@
 .tl-p:hover { background: #eef3fa; }
 .tl-p.on { background: #4582CC; border-color: #4582CC; color: #fff; }
 .tl-label { margin-left: auto; font-size: 0.8rem; color: #55544f; white-space: nowrap; }
-.tl-years { display: flex; gap: 1px; }
-.tl-y { flex: 1 1 0; min-width: 0; border: 0; background: #eef0f3; color: #55544f; font-size: 0.7rem; line-height: 1; padding: 5px 0; cursor: pointer; }
-.tl-y:hover { background: #cfe0f4; }
-.tl-y.on { background: #78b7e2; color: #12233b; }
-.tl-y.anchor { background: #4582CC; color: #fff; }
+/* the year slider: two range inputs on one track; only their handles take the pointer, so either can be dragged */
+.tl-slider { --th: 20px; }
+.tl-track { position: relative; height: 28px; }
+.tl-rail { position: absolute; left: calc(var(--th) / 2); right: calc(var(--th) / 2); top: 11px; height: 6px; border-radius: 3px; background: #e3e7ee; }
+.tl-fill { position: absolute; top: 0; bottom: 0; border-radius: 3px; background: #4582CC; }
+.tl-h { position: absolute; inset: 0; width: 100%; height: 28px; margin: 0; padding: 0; background: none; -webkit-appearance: none; appearance: none; pointer-events: none; }
+.tl-h:focus { outline: none; }
+.tl-h::-webkit-slider-runnable-track { height: 28px; background: none; border: 0; }
+.tl-h::-webkit-slider-thumb { -webkit-appearance: none; pointer-events: auto; box-sizing: border-box; width: var(--th); height: var(--th); margin-top: 4px;
+  border-radius: 50%; background: #fff; border: 3px solid #4582CC; box-shadow: 0 1px 3px rgba(16, 32, 60, 0.3); cursor: grab; }
+.tl-h:active::-webkit-slider-thumb { cursor: grabbing; }
+.tl-h:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgba(69, 130, 204, 0.3); }
+.tl-h::-moz-range-track { height: 28px; background: none; border: 0; }
+.tl-h::-moz-range-thumb { pointer-events: auto; box-sizing: border-box; width: var(--th); height: var(--th); border-radius: 50%; background: #fff;
+  border: 3px solid #4582CC; box-shadow: 0 1px 3px rgba(16, 32, 60, 0.3); cursor: grab; }
+.tl-h:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px rgba(69, 130, 204, 0.3); }
+.tl-ticks { position: relative; height: 18px; margin: 0 calc(var(--th) / 2); }
+.tl-t { position: absolute; top: 0; transform: translateX(-50%); border: 0; background: none; padding: 0 2px; font-size: 0.7rem; line-height: 1.4; color: #9aa0a6; cursor: pointer; }
+.tl-t:hover { color: #1f4f8a; }
+.tl-t.on { color: #333C47; }
+.tl-t.end { color: #1f4f8a; font-weight: 700; }
 /* every page: the header card is as tall as its text, so no line is cut off */
 .bslib-grid[style*="17fr"] { grid-template-rows: auto minmax(3em, 1fr) !important; }
 
