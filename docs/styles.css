@@ -228,3 +228,8 @@ body.noq .card:has(> .card-header .nav-tabs) > .card-header { display: none; }
 /* the Tables tab is hidden for now, and with it the tab bar (one tab needs none). Its code is still in the page:
    remove this line to bring it back */
 .card:has(> .card-header .nav-tabs) > .card-header { display: none; }
+/* question 4: one legend for all its outcome charts; a chart across both columns; a second chart inside a compared entry's box */
+.qlegend { display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 0.78rem; color: #333C47; margin: -2px 2px 10px; }
+.qlegend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; }
+.qcharts > .qwide { grid-column: 1 / -1; }
+.qsub { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid #e7ebf1; }
