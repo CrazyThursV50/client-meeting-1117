@@ -324,13 +324,13 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
       await sleep(600);
     } finally { restoring = false; sync() }
   }
-  function button() {   // under the year buttons
-    const tl = document.querySelector(".fd-tl"); if (!tl || tl.querySelector(".fd-copy")) return;
+  function button() {   // in the sidebar under the questions, where the hint "Click a selected item again to clear it." was (hidden in stories.css)
+    const qp = document.querySelector(".qpick"); if (!qp || document.querySelector(".fd-copy")) return;
     const b = document.createElement("button"); b.type = "button"; b.className = "fd-copy"; b.textContent = "Copy link to this view";
     b.addEventListener("click", async () => { sync();
       try { await navigator.clipboard.writeText(location.href); b.textContent = "Link copied" } catch (e) { b.textContent = "Copy it from the address bar" }
       setTimeout(() => { b.textContent = "Copy link to this view" }, 1800) });
-    const row = document.createElement("div"); row.className = "fd-linkrow"; row.appendChild(b); tl.appendChild(row);
+    const row = document.createElement("div"); row.className = "fd-linkrow"; row.appendChild(b); qp.after(row);   // beside the question list, not inside its input
   }
   new MutationObserver(button).observe(document.documentElement, {childList: true, subtree: true});
   const start = new URLSearchParams(location.search);

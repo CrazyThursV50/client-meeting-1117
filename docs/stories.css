@@ -121,8 +121,9 @@ nav.navbar .navbar-title-text > a { cursor: pointer; }
 
 /* "Download CSV" and "Copy link to this view" */
 .csv { font-weight: 400; font-size: 0.78rem; margin-left: 0.5em; }
-.fd-linkrow { display: flex; justify-content: flex-end; margin-top: 6px; }
-.fd-copy { border: 1px solid #c9d6ea; background: #fff; color: #1f3d66; border-radius: 4px; padding: 1px 10px; font-size: 0.8rem; cursor: pointer; }
+.fd-linkrow { display: flex; justify-content: flex-start; margin: 0.15rem 0 0.4rem; }   /* in the sidebar, under the questions */
+.qpick > .side-note { display: none; }   /* "Click a selected item again to clear it.": its place is taken by "Copy link to this view" */
+.fd-copy { border: 1px solid #c9d6ea; background: #fff; color: #1f3d66; border-radius: 4px; padding: 3px 10px; font-size: 0.82rem; cursor: pointer; }
 .fd-copy:hover { background: #eef3fa; }
 
 /* Tables › Numbers in the chart, with "Compare with": the comparison table to the right of the selection's tables */
