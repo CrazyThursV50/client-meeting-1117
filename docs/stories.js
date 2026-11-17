@@ -14,7 +14,7 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
         <ol><li><b>Overview</b>, the start page: ten headline numbers, for all agencies or for the agency or component you pick. Click a card to open it: what its number means, what stands out in the years chosen, and a larger chart. The agency, component and years can still be changed while a card is open.</li>
           <li><b>Questions 1–6</b>, on the left: Requests received &amp; processed · Response time · Backlog, staff &amp; cost · Outcomes &amp; exemptions · Appeals · Backlog vs intake. Each is a set of blocks; a block names the data types and fields it uses and how they are combined.</li>
           <li><b>Build your own</b>: open a table on the left and tick its columns, then choose what to show: each column over time, added up, shares, A ÷ B, A − B, growth from the first year, change from the year before, or, for the last year, column by column, the largest agencies or components, and one column against another. “Customize” on a question's extra views opens them here.</li></ol>
-        <p class="fd-small">“Home” in the top bar goes back to the overview; so does clicking a selected question again.</p></section>
+        <p class="fd-small">The dashboard’s name in the top bar goes back to the overview; so does clicking a selected question again. “Reset” (top right) puts every choice back to how the dashboard opens: all agencies, all years, nothing compared, all reporting agencies added up, and the appeals reversal rate out of appeals decided on the merits. It stays on the page you are on.</p></section>
       <section><h3>Choosing what you see</h3>
         <dl><dt>Agency</dt><dd>“All agencies (government total)”, or one agency.</dd>
           <dt>Component</dt><dd>An office inside the agency you picked.</dd>
@@ -319,25 +319,62 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
   if ([...start.keys()].length) restore(start);
 })();
 
-/* ---------- "Home" in the top bar (and the dashboard's name): back to the overview's cards. The agency, component,
-   comparison and years chosen stay as they are; "Clear all" resets those. ---------- */
+/* ---------- The dashboard's name in the top bar: back to the overview's cards. "Reset" at the top right: every choice back to
+   how the page opens (agency, component, compare list, years, "Agencies added up in the total", the appeals base), staying on
+   the page that is showing. It sets the dashboard's own inputs, the way a user would, so the charts and the address follow.
+   The button keeps the class fd-home so the top-bar styles still apply. ---------- */
 (function () {
   const openPanel = () => document.querySelector(".odetail:not([hidden])");
   const goHome = e => { if (e) e.preventDefault(); window.__openCard = null;
     const c = openPanel(); if (c) c.querySelector(".od-close").click();
     const on = document.querySelector(".qbtn.on"); if (on) on.click(); window.scrollTo(0, 0) };
-  let btn = null;
-  const update = () => { if (btn) btn.classList.toggle("fd-at-home", !document.querySelector(".qbtn.on") && !openPanel()) };
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const waitFor = async (f, ms = 3000) => { for (let t = 0; t < ms; t += 100) { const v = f(); if (v) return v; await sleep(100) } return null };
+  const formOf = lab => { const l = [...document.querySelectorAll("label")].find(x => x.textContent.trim() === lab); return l && l.closest("form") };
+  const radioOf = (lab, starts) => { const f = formOf(lab); return f && [...f.querySelectorAll("input[type=radio]")].find(i => i.closest("label").textContent.trim().startsWith(starts)) };
+  const MERITS = "Appeals decided on the merits", memo = () => window.__memo || {};
+  const hiddenBase = () => { const c = document.getElementById("ojs-cell-23"), d = c && c.querySelector(".observablehq > div"); return d && !d.querySelector("input") ? d : null };   // the appeals base off Question 5
+  function dirty() {
+    const ag = formOf("Agency"), sel = ag && ag.querySelector("select");
+    if (sel && sel.options.length && sel.value !== sel.options[0].value) return true;
+    const c = document.querySelector("div.cmp"); if (c && Array.isArray(c.value) && c.value.length) return true;
+    const ys = [...document.querySelectorAll(".years select")];
+    if (ys.length === 2) { const v = ys.map(s => +s.value), all = [...ys[0].options].map(o => +o.value);
+      if (Math.min(...v) !== all[0] || Math.max(...v) !== all[all.length - 1]) return true }
+    const only = radioOf("Agencies added up in the total", "Only");
+    if ((only && only.checked) || String(memo().scope || "").startsWith("Only")) return true;
+    const all5 = radioOf("Reversal rate out of", "All"), hb = hiddenBase();
+    return !!((all5 && all5.checked) || (hb && hb.value === "All processed appeals") || memo().base5 === "All processed appeals");
+  }
+  let btn = null, busy = false;
+  const update = () => { if (btn && !busy) { const d = dirty(); btn.classList.toggle("fd-at-home", !d); btn.setAttribute("aria-disabled", String(!d)) } };
+  async function reset() {
+    if (busy || !dirty()) return; busy = true;
+    try {
+      const clear = document.querySelector(".fd-clear"); if (clear && !clear.disabled) { clear.click(); await sleep(300) }   // agency, component, compare list
+      const all = document.querySelector(".tl-p"); if (all && !all.classList.contains("on")) { all.click(); await sleep(300) }   // "All years"
+      const first = await waitFor(() => radioOf("Agencies added up in the total", "All"));   // shown once the agency is the total again
+      if (first && !first.checked) { first.click(); await sleep(300) }
+      window.__memo = Object.assign(memo(), {scope: first ? first.closest("label").textContent.trim() : memo().scope, base5: MERITS});
+      const merits = radioOf("Reversal rate out of", "Appeals decided");
+      if (merits) { if (!merits.checked) merits.click() }
+      else { const hb = hiddenBase(); if (hb && hb.value !== MERITS) { hb.value = MERITS; hb.dispatchEvent(new Event("input", {bubbles: true})) } }
+      await sleep(300);
+    } finally { busy = false; update() }
+  }
   function place() {
     const nav = document.querySelector("nav.navbar"); if (!nav || nav.querySelector(".fd-home")) return;
-    btn = document.createElement("button"); btn.type = "button"; btn.className = "fd-home"; btn.title = "Back to the overview";
-    btn.innerHTML = '<i class="bi bi-house-door" aria-hidden="true"></i> Home';
-    btn.addEventListener("click", goHome); nav.appendChild(btn);
-    const name = nav.querySelector(".navbar-title-text > a"); if (name) name.addEventListener("click", goHome);
+    btn = document.createElement("button"); btn.type = "button"; btn.className = "fd-home fd-reset";
+    btn.title = "Reset every choice to how the dashboard opens: agency, component, compare, years, agencies added up, appeals base";
+    btn.innerHTML = '<i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Reset';
+    btn.addEventListener("click", reset); nav.appendChild(btn);
+    const name = nav.querySelector(".navbar-title-text > a"); if (name) { name.addEventListener("click", goHome); name.title = "Back to the overview" }
     update();
   }
   document.addEventListener("DOMContentLoaded", place); place();
   document.addEventListener("click", () => setTimeout(update, 0), true);
+  document.addEventListener("input", () => setTimeout(update, 0), true);
+  document.addEventListener("change", () => setTimeout(update, 0), true);
   // an opened card on the overview: Escape closes it, the arrow keys step through the cards
   document.addEventListener("keydown", e => {
     const d = openPanel(); if (!d || /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName) || document.querySelector('.card[data-full-screen="true"]')) return;

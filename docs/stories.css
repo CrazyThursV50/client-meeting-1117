@@ -82,6 +82,8 @@ nav.navbar { position: relative; }
   padding: 0.15rem 0.7rem; font-size: 0.85rem; cursor: pointer; }
 .fd-home:hover { background: rgba(255,255,255,0.18); }
 .fd-home.fd-at-home { opacity: 0.55; cursor: default; }
+.fd-home.fd-at-home:hover { background: transparent; }   /* Reset with nothing to reset */
+nav.navbar .navbar-title-text > a { cursor: pointer; }
 
 /* "Download CSV" and "Copy link to this view" */
 .csv { font-weight: 400; font-size: 0.78rem; margin-left: 0.5em; }
