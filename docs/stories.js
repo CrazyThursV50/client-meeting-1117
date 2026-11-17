@@ -9,7 +9,7 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
       <section><h3>What this is</h3>
         <p>Every federal agency files an annual FOIA report. This dashboard puts the reports for FY2008–FY2025 side by side, for agencies
         and for their components: offices inside an agency, such as ICE inside DHS.</p>
-        <p>Data: foia.gov annual reports, built 2026-11-02.</p>
+        <p>Data: foia.gov annual reports<span class="fd-when" data-pre=", last updated "></span>. A report an agency files after that day is not in the dashboard yet.</p>
         <h3>Three ways in</h3>
         <ol><li><b>Overview</b>, the start page: ten headline numbers, for all agencies or for the agency or component you pick. Click a card to open it: what its number means, what stands out in the years chosen, and a larger chart. The agency, component and years can still be changed while a card is open.</li>
           <li><b>Questions 1–6</b>, on the left: Requests received &amp; processed · Response time · Backlog, staff &amp; cost · Outcomes &amp; exemptions · Appeals · Backlog vs intake. Each is a set of blocks; a block names the data types and fields it uses and how they are combined.</li>
@@ -381,4 +381,27 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
     const b = d.querySelector(e.key === "Escape" ? ".od-close" : e.key === "ArrowRight" ? ".od-next" : e.key === "ArrowLeft" ? ".od-prev" : "none");
     if (b && !b.disabled) b.click();
   });
+})();
+
+/* ---------- When the data was last updated: in the top bar on every page, and in the guide. The date is foia.json's "built"
+   (the day prep.py made it from the foia.gov download), so a refresh moves it without a change here. Written the way MuckRock
+   writes dates (AP style: Nov. 2, 2026); left out when the file has no date. ---------- */
+(function () {
+  const DATA = (window.__foiaJson = window.__foiaJson || fetch("data/foia.json").then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .then(D => { D.ids.Agency = D.ids.Agency.map(fdAgency); return D }));
+  const MONTH = ["Jan.", "Feb.", "March", "April", "May", "June", "July", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."];
+  const ap = s => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ""); return m && +m[2] >= 1 && +m[2] <= 12 ? `${MONTH[+m[2] - 1]} ${+m[3]}, ${m[1]}` : null };
+  const TIP = "The last time the data was refreshed from foia.gov's annual reports. A report an agency files after this day is not in the dashboard yet.";
+  let when = null;
+  function place() {
+    if (!when) return;
+    const nav = document.querySelector("nav.navbar");
+    if (nav && !nav.querySelector(".fd-updated")) {
+      const s = document.createElement("span"); s.className = "fd-updated"; s.title = TIP;
+      s.textContent = `Data updated ${when}`; nav.appendChild(s);
+    }
+    document.querySelectorAll(".fd-when:not([data-set])").forEach(el => { el.dataset.set = "1"; el.textContent = (el.dataset.pre || "") + when });
+  }
+  DATA.then(D => { when = ap(D.built); place() }).catch(() => {});
+  new MutationObserver(place).observe(document.documentElement, {childList: true, subtree: true});
 })();

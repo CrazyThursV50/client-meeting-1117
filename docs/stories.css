@@ -84,6 +84,10 @@ nav.navbar { position: relative; }
 .fd-home.fd-at-home { opacity: 0.55; cursor: default; }
 .fd-home.fd-at-home:hover { background: transparent; }   /* Reset with nothing to reset */
 nav.navbar .navbar-title-text > a { cursor: pointer; }
+/* top bar: when the data was last updated, left of Reset */
+.fd-updated { position: absolute; right: 6.6rem; top: 50%; transform: translateY(-50%); color: #fff; font-size: 0.85rem; opacity: 0.92; white-space: nowrap; cursor: help; }
+@media (max-width: 880px) { .fd-credit { display: none; } }   /* no room for the credit next to the date */
+@media (max-width: 600px) { .fd-updated { position: static; transform: none; flex-basis: 100%; padding: 0 0 0.3rem 1rem; font-size: 0.75rem; } }   /* phones: the date on a line of its own */
 
 /* "Download CSV" and "Copy link to this view" */
 .csv { font-weight: 400; font-size: 0.78rem; margin-left: 0.5em; }
