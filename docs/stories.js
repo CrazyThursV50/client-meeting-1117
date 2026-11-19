@@ -14,7 +14,7 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
         <ol><li><b>Overview</b>, the start page: ten headline numbers, for all agencies or for the agency or component you pick. Click a card to open it: what its number means, what stands out in the years chosen, and a larger chart. The agency, component and years can still be changed while a card is open.</li>
           <li><b>Questions 1–6</b>, on the left: Requests received &amp; processed · Response time · Backlog, staff &amp; cost · Outcomes &amp; exemptions · Appeals · Backlog vs intake. Each is a set of blocks; a block names the data types and fields it uses and how they are combined.</li>
           <li><b>Build your own</b>: open a table on the left and tick its columns, then choose what to show: each column over time, added up, shares, A ÷ B, A − B, growth from the first year, change from the year before, or, for the last year, column by column, the largest agencies or components, and one column against another. “Customize” on a question's extra views opens them here.</li></ol>
-        <p class="fd-small">The dashboard’s name in the top bar goes back to the overview; so does clicking a selected question again. “Reset” (top right) puts every choice back to how the dashboard opens: all agencies, all years, nothing compared, all reporting agencies added up, and the appeals reversal rate out of appeals decided on the merits. It stays on the page you are on.</p></section>
+        <p class="fd-small">The dashboard’s name in the top bar goes back to the overview; so does clicking a selected question again. “Reset” (top right) puts every choice back to how the dashboard opens: all agencies, all years, nothing compared, and all reporting agencies added up. It stays on the page you are on.</p></section>
       <section><h3>Choosing what you see</h3>
         <dl><dt>Agency (under the title, with Component and Compare with)</dt><dd>“All agencies (government total)”, or one agency.</dd>
           <dt>Component</dt><dd>An office inside the agency you picked.</dd>
@@ -278,9 +278,8 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
       if (lo !== all[0] || hi !== all[all.length - 1]) { p.set("from", lo); p.set("to", hi) } }
     const cmp = document.querySelector("div.cmp"); if (cmp && Array.isArray(cmp.value) && cmp.value.length) p.set("with", cmp.value.join("~"));
     if ((checkedText("Agencies added up in the total") || "").startsWith("Only")) p.set("scope", "same");
-    // the reversal-rate base also sets the overview's appeals tile and "Compare with"; pages other than Question 5 hide its control,
-    // so there the choice is read from where the dashboard keeps it
-    if ((q === 5 ? checkedText("Reversal rate out of") : (window.__memo || {}).base5) === "All processed appeals") p.set("base", "all");
+    // (an address no longer carries an appeals base: Question 5 shows the reversal rate out of all processed appeals and out of
+    // those decided, side by side, so "base=all" in an old link is left out)
     const od = document.querySelector(".odetail:not([hidden])"); if (!q && od) p.set("card", od.dataset.i);   // the card opened on the overview
     if (q === 7) { const ty = selOf("Data type"), me = selOf("Measure");
       if (ty) p.set("type", ty.selectedOptions[0].textContent.trim().slice(0, 2)); if (me) p.set("m", me.selectedOptions[0].textContent.trim()) }
@@ -317,7 +316,6 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
       if (p.get("scope") === "same") { const f2 = formOf("Agencies added up in the total"), i = f2 && [...f2.querySelectorAll("input")].find(x => x.closest("label").textContent.trim().startsWith("Only")); if (i) { i.click(); await sleep(300) } }
       const q = +p.get("q");
       if (q) { const b = document.querySelector(`.qbtn[data-id="${q}"]`); if (b && +document.querySelector(".qpick").value !== q) b.click();
-        if (q === 5 && p.get("base") === "all") { const f3 = await waitFor(() => formOf("Reversal rate out of")); const i = f3 && [...f3.querySelectorAll("input")].find(x => x.closest("label").textContent.trim() === "All processed appeals"); if (i) i.click() }
         if (q === 7) { const ty = p.get("type"), m = p.get("m");
           if (ty) { const s = await waitFor(() => selOf("Data type")); const o = s && [...s.options].find(o => o.textContent.trim().startsWith(ty)); if (o && s.value !== o.value) { s.value = o.value; fire(s, "input", "change"); await sleep(500) } }
           if (m) { const s = await waitFor(() => { const x = selOf("Measure"); return x && [...x.options].some(o => o.textContent.trim() === m) && x }); if (s) { s.value = [...s.options].find(o => o.textContent.trim() === m).value; fire(s, "input", "change") } } } }
@@ -334,14 +332,12 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
   }
   new MutationObserver(button).observe(document.documentElement, {childList: true, subtree: true});
   const start = new URLSearchParams(location.search);
-  // set before the dashboard builds its inputs (this file runs first), so the base holds on every page, not only on Question 5
-  if (start.get("base") === "all") window.__memo = Object.assign(window.__memo || {}, {base5: "All processed appeals"});
   if (!start.get("q") && +start.get("card") > 0) window.__openCard = +start.get("card") - 1;   // the overview opens this card when it is first drawn
   if ([...start.keys()].length) restore(start);
 })();
 
 /* ---------- The dashboard's name in the top bar: back to the overview's cards. "Reset" at the top right: every choice back to
-   how the page opens (agency, component, compare list, years, "Agencies added up in the total", the appeals base), staying on
+   how the page opens (agency, component, compare list, years, "Agencies added up in the total"), staying on
    the page that is showing. It sets the dashboard's own inputs, the way a user would, so the charts and the address follow.
    The button keeps the class fd-home so the top-bar styles still apply. ---------- */
 (function () {
@@ -386,7 +382,7 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
   function place() {
     const nav = document.querySelector("nav.navbar"); if (!nav || nav.querySelector(".fd-home")) return;
     btn = document.createElement("button"); btn.type = "button"; btn.className = "fd-home fd-reset";
-    btn.title = "Reset every choice to how the dashboard opens: agency, component, compare, years, agencies added up, appeals base";
+    btn.title = "Reset every choice to how the dashboard opens: agency, component, compare, years, agencies added up";
     btn.innerHTML = '<i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Reset';
     btn.addEventListener("click", reset); nav.appendChild(btn);
     const name = nav.querySelector(".navbar-title-text > a"); if (name) { name.addEventListener("click", goHome); name.title = "Back to the overview" }
