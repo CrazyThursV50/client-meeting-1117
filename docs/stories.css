@@ -63,7 +63,7 @@
 /* Agencies added up in the total: a row of its own across the card, the label and the two choices on one line; the explanation
    is the label's tooltip (ⓘ) */
 .fd-acbar > #ojs-cell-22 form { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 14px; margin-top: 2px; }
-.fd-acbar > #ojs-cell-22 form > label { margin: 0; cursor: help; }
+.fd-acbar > #ojs-cell-22 form > label { margin: 0; }
 .fd-acbar > #ojs-cell-22 form > label::after { content: " ⓘ"; color: #8a8f98; font-weight: 400; }
 .fd-acbar > #ojs-cell-22 form > div:not(.side-note) { display: flex; flex-wrap: wrap; gap: 2px 14px; }
 .fd-acbar > #ojs-cell-22 form > div label { font-size: 0.84rem; margin: 0; }
@@ -119,7 +119,7 @@ nav.navbar { position: relative; }
 .fd-home.fd-at-home:hover { background: transparent; }   /* Reset with nothing to reset */
 nav.navbar .navbar-title-text > a { cursor: pointer; }
 /* top bar: when the data was last updated, left of Reset */
-.fd-updated { position: absolute; right: 6.6rem; top: 50%; transform: translateY(-50%); color: #fff; font-size: 0.85rem; opacity: 0.92; white-space: nowrap; cursor: help; }
+.fd-updated { position: absolute; right: 6.6rem; top: 50%; transform: translateY(-50%); color: #fff; font-size: 0.85rem; opacity: 0.92; white-space: nowrap; }
 @media (max-width: 880px) { .fd-credit { display: none; } }   /* no room for the credit next to the date */
 @media (max-width: 600px) { .fd-updated { position: static; transform: none; flex-basis: 100%; padding: 0 0 0.3rem 1rem; font-size: 0.75rem; } }   /* phones: the date on a line of its own */
 
@@ -145,3 +145,23 @@ nav.navbar .navbar-title-text > a { cursor: pointer; }
 .fd-rules ul { padding-left: 1.2rem; margin: 0; }
 /* the page's one scrolling box: macOS shows its scrollbar only while scrolling, drawn over the content's right edge (Safari and Chrome), which covered the cards' last column; keep that edge clear */
 #card-tabset-2-1 > .card-body > .cell-output { padding-right: 14px; }
+
+/* the guide opens over the page: its card is opaque (the swiss theme makes cards transparent) */
+.card[data-full-screen="true"] { background: var(--t-bg, #fff) !important; }
+/* the way into the guide, in the sidebar above "Copy link to this view" */
+.fd-linkrow { display: flex; flex-direction: column; align-items: flex-start; gap: 0.55rem; }
+.fd-guidelink { font-size: 0.86rem; }
+/* the agency row folds to one line: what is chosen, and the button that opens it again */
+.fd-acbar { position: relative; }
+.fd-actog { position: absolute; top: 0.7rem; right: 2.6rem; border: 0; background: none; padding: 0; font-size: 0.8rem; font-weight: 600; color: var(--t-accent-ink, #1f4f8a); cursor: pointer; z-index: 1; }
+.fd-actog:hover { text-decoration: underline; }
+.fd-acsum { display: none; }
+.fd-acbar.fd-achide { grid-template-columns: minmax(0, 1fr); grid-template-areas: "sum"; }
+.fd-acbar.fd-achide > [id^="ojs-cell-"] { display: none !important; }
+.fd-acbar.fd-achide > .fd-acsum { display: block; grid-area: sum; font-size: 0.9rem; color: var(--t-ink, #212529); padding-right: 12rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* a short explanation, shown at once on hover or on a click (stories.js) */
+[data-fd-tip] { cursor: pointer; }
+.fd-tip { position: fixed; z-index: 3000; display: none; max-width: 320px; padding: 8px 10px; background: var(--t-ink, #21304a); color: #fff;
+  font-size: 0.8rem; line-height: 1.45; font-weight: 400; letter-spacing: 0; text-transform: none; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18); pointer-events: none; }
+/* no "expand" buttons on the cards: the guide still opens full screen, from the sidebar's link (stories.js clicks the hidden button) */
+.bslib-full-screen-enter { display: none !important; }

@@ -10,23 +10,21 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
         <p>Every federal agency files an annual FOIA report. This dashboard puts the reports for FY2008–FY2025 side by side, for agencies
         and for their components: offices inside an agency, such as ICE inside DHS.</p>
         <p>Data: foia.gov annual reports<span class="fd-when" data-pre=", last updated "></span>. A report an agency files after that day is not in the dashboard yet.</p>
-        <h3>Three ways in</h3>
+        <h3>Two ways in</h3>
         <ol><li><b>Overview</b>, the start page: ten headline numbers, for all agencies or for the agency or component you pick. Click a card to open it: what its number means, what stands out in the years chosen, and a larger chart. The agency, component and years can still be changed while a card is open.</li>
-          <li><b>Questions 1–6</b>, on the left: Requests received &amp; processed · Response time · Backlog, staff &amp; cost · Outcomes &amp; exemptions · Appeals · Backlog vs intake. Each is a set of blocks; a block names the data types and fields it uses and how they are combined.</li>
-          <li><b>Build your own</b>: open a table on the left and tick its columns, then choose what to show: each column over time, added up, shares, A ÷ B, A − B, growth from the first year, change from the year before, or, for the last year, column by column, the largest agencies or components, and one column against another. “Customize” on a question's extra views opens them here.</li></ol>
+          <li><b>Questions 1–6</b>, on the left: Requests received &amp; processed · Response time · Backlog, staff &amp; cost · Outcomes &amp; exemptions · Appeals · Backlog vs intake. Each page has up to three numbers, each with how it is worked out, a chart over time and a chart by agency; under them, “Built from” opens the report tables and columns used.</li></ol>
+        <p>In a chart by agency, click a row to open that agency or component; click the gold row (the one open) to go back up a level; double-click a component's row to go back to all agencies.</p>
         <p class="fd-small">The dashboard’s name in the top bar goes back to the overview; so does clicking a selected question again. “Reset” (top right) puts every choice back to how the dashboard opens: all agencies, all years, nothing compared, and all reporting agencies added up. It stays on the page you are on.</p></section>
       <section><h3>Choosing what you see</h3>
-        <dl><dt>Agency (under the title, with Component and Compare with)</dt><dd>“All agencies (government total)”, or one agency.</dd>
+        <dl><dt>Agency (under the title, with Component and Compare with)</dt><dd>“All agencies (government total)”, or one agency. “Hide choices” folds this row to one line that says what is chosen.</dd>
           <dt>Component</dt><dd>An office inside the agency you picked.</dd>
-          <dt>Fiscal years (top right)</dt><dd>Pick All years, Last 10, Last 5 or the latest year; or drag the two handles on the year slider (the charts follow when you let go). Clicking a year moves the nearer handle there; double-clicking a year shows that year only. One-year views (distribution, exemptions, tables) use the last year chosen.</dd>
-          <dt>Compare with (up to 5)</dt><dd>Adds agencies or components to the same chart; × removes one.</dd>
+          <dt>Fiscal years (top right)</dt><dd>Pick All years, Last 10, Last 5 or the latest year; or drag the two handles on the year slider (the charts follow when you let go). Clicking a year moves the nearer handle there; double-clicking a year shows that year only. The numbers in the cards and the charts by agency are for the last year chosen.</dd>
+          <dt>Compare with (up to 5)</dt><dd>Adds agencies or components to compare: the cards get a row for each, and each gets its own chart; × removes one. The charts by agency mark the ones compared, and “Ranked within”, above them, switches to the agency of one compared, to see its components.</dd>
           <dt>Agencies added up in the total</dt><dd>All reporting agencies (71–122 a year), or only the 70 that reported all 18 years, so a total does not grow just because more agencies report.</dd></dl>
-        <p>Each question has two tabs:
-          <b>Chart</b> and <b>Tables</b> (the numbers in the chart, related report tables, all agencies in one year). Next to the tables,
-          <b>How the comparison is made</b> explains that question's numbers.</p></section>
+</section>
       <section><h3>Words to know</h3>
         <dl><dt>Processed</dt><dd>Requests an agency closed during the fiscal year.</dd>
-          <dt>Released in full, partly released, fully denied on exemptions</dt><dd>How a closed request ended after its records were reviewed. Many end in other ways: no records found, withdrawn, referred and more.</dd>
+          <dt>Full grant, partial grant / partial denial, full denial based on exemptions</dt><dd>How a processed request ended after its records were reviewed (the names the reports use). Many end in other ways: no records found, withdrawn, referred and more.</dd>
           <dt>Exemptions</dt><dd>The nine reasons in the law (5 U.S.C. § 552(b)) that let an agency withhold records.</dd>
           <dt>Backlog</dt><dd>Requests still pending at the end of the year beyond the legal time limit: 20 working days from a complete request, plus 10 in unusual circumstances.</dd>
           <dt>Response time</dt><dd>Working days (as the reports count them) from receiving a complete request to closing it. An agency reports a median, and separately how many requests it closed in each range of days. The two do not always agree (National Archives, complex requests, FY2025: a median of 1,384 days, while 1,273 of its 1,551 were closed within 20), and the reports do not say why; Question 2 shows both as reported.</dd>
@@ -37,6 +35,7 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
       figures for 26 agencies; they appear in FY2009–10. The reports show what changed, not why.</p>
   </div>`;
   function openGuide(card) { const b = card && card.querySelector(".bslib-full-screen-enter"); if (b) b.click() }
+  window.fdOpenGuide = () => { const g = document.querySelector(".fd-guide"); openGuide(g && g.closest(".card")) }   // the sidebar's link
   function fix(qh) {
     qh.dataset.guide = "1";
     const card = qh.closest(".card"); if (!card) return;
@@ -48,10 +47,6 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
       if (sel) { [...sel.childNodes].forEach(n => { if (!(n.nodeType === 1 && n.classList.contains("warn"))) n.remove() });
         const w = sel.querySelector(".warn"); if (w) w.textContent = w.textContent.replace(/^[\s\u00a0]*·\s*/, "");
         if (!sel.textContent.trim()) sel.remove() }
-    }
-    if (name === "Overview") {   // the start page: the way into the guide
-      qh.insertAdjacentHTML("beforeend", `<div class="fd-open"><button type="button" class="fd-link">How to use this dashboard ↗</button></div>`);
-      qh.querySelector(".fd-link").addEventListener("click", () => openGuide(card));
     }
   }
   function rules() {
@@ -200,6 +195,7 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
    so the dashboard keeps redrawing them in place and every input works as before; the sidebar keeps the questions. ---------- */
 (function () {
   const IDS = ["ojs-cell-17", "ojs-cell-18", "ojs-cell-21", "ojs-cell-22"];   // Agency, Component, Compare with, Agencies added up in the total
+  function show(bar, tog, hide) { bar.classList.toggle("fd-achide", hide); const t = hide ? "Show choices ▾" : "Hide choices ▴"; if (tog.textContent !== t) tog.textContent = t; tog.setAttribute("aria-expanded", String(!hide)) }
   function place() {
     const card = document.querySelector(".card.fd-card.fd-has-tl"), body = card && card.querySelector(":scope > .card-body");
     const cells = IDS.map(id => document.getElementById(id));
@@ -208,9 +204,19 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
     if (!bar) { bar = document.createElement("div"); bar.className = "fd-acbar"; bar.setAttribute("role", "group");
       bar.setAttribute("aria-label", "Agency, component and comparison"); body.appendChild(bar) }
     for (const c of cells) if (c.parentElement !== bar) bar.appendChild(c);
+    let tog = bar.querySelector(":scope > .fd-actog"), sum = bar.querySelector(":scope > .fd-acsum");
+    if (!tog) { tog = document.createElement("button"); tog.type = "button"; tog.className = "fd-actog"; sum = document.createElement("div"); sum.className = "fd-acsum"; bar.prepend(sum); bar.append(tog)
+      tog.addEventListener("click", () => show(bar, tog, !bar.classList.contains("fd-achide")))
+      show(bar, tog, false) }   // open whenever the page opens; folded only by a click, and it stays so while the page is in use
+    // folded: one line that says what is chosen (written only when it changes, as this runs on every change to the page)
+    const pick = id => { const s = document.querySelector(`#${id} select`); return s && !s.disabled && s.selectedIndex > 0 ? s.selectedOptions[0].textContent.trim() : null }
+    const ag = document.querySelector("#ojs-cell-17 select"), cmp = document.querySelector("div.cmp"), chips = [...document.querySelectorAll("div.cmp .chip")].map(c => c.firstChild ? c.firstChild.textContent.trim() : "")
+    const only = [...document.querySelectorAll("#ojs-cell-22 input:checked")].some(i => /^Only/.test((i.closest("label") || i.parentElement).textContent.trim()))
+    const text = `${ag ? ag.selectedOptions[0].textContent.trim() : ""}${pick("ojs-cell-18") ? ` › ${pick("ojs-cell-18")}` : ""}${chips.length ? ` · compared with ${chips.join(", ")}` : ""}${only ? ` · only the agencies that reported every year` : ""}`
+    if (sum.textContent !== text) sum.textContent = text
     // the explanation under "Agencies added up in the total" becomes the label's tooltip (the form is redrawn when the agency changes)
     const f = document.querySelector("#ojs-cell-22 form"), l = f && f.querySelector(":scope > label"), n = f && f.querySelector(".side-note");
-    if (l && n && !l.title) l.title = n.textContent.trim();
+    if (l && n && !l.dataset.fdTip) l.dataset.fdTip = n.textContent.trim();
   }
   new MutationObserver(place).observe(document.documentElement, {childList: true, subtree: true});
   document.addEventListener("DOMContentLoaded", place);
@@ -327,7 +333,9 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
     b.addEventListener("click", async () => { sync();
       try { await navigator.clipboard.writeText(location.href); b.textContent = "Link copied" } catch (e) { b.textContent = "Copy it from the address bar" }
       setTimeout(() => { b.textContent = "Copy link to this view" }, 1800) });
-    const row = document.createElement("div"); row.className = "fd-linkrow"; row.appendChild(b); qp.after(row);   // beside the question list, not inside its input
+    const g = document.createElement("button"); g.type = "button"; g.className = "fd-link fd-guidelink"; g.textContent = "How to use this dashboard ↗";
+    g.addEventListener("click", () => window.fdOpenGuide && window.fdOpenGuide());
+    const row = document.createElement("div"); row.className = "fd-linkrow"; row.append(g, b); qp.after(row);   // beside the question list, not inside its input: the guide, then the link
   }
   new MutationObserver(button).observe(document.documentElement, {childList: true, subtree: true});
   const start = new URLSearchParams(location.search);
@@ -413,11 +421,31 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
     if (!when) return;
     const nav = document.querySelector("nav.navbar");
     if (nav && !nav.querySelector(".fd-updated")) {
-      const s = document.createElement("span"); s.className = "fd-updated"; s.title = TIP;
+      const s = document.createElement("span"); s.className = "fd-updated"; s.dataset.fdTip = TIP;
       s.textContent = `Data updated ${when}`; nav.appendChild(s);
     }
     document.querySelectorAll(".fd-when:not([data-set])").forEach(el => { el.dataset.set = "1"; el.textContent = (el.dataset.pre || "") + when });
   }
   DATA.then(D => { when = ap(D.built); place() }).catch(() => {});
   new MutationObserver(place).observe(document.documentElement, {childList: true, subtree: true});
+})();
+
+/* ---------- Short explanations: an element with data-fd-tip shows its text at once, on hover, or on a click, which keeps it
+   open until the next click anywhere or Esc. (The browser's own tooltip waits about a second, and a click did nothing.) ---------- */
+(function () {
+  let tip = null, pinned = null;
+  const box = () => { if (!tip) { tip = document.createElement("div"); tip.className = "fd-tip"; tip.setAttribute("role", "tooltip"); document.body.appendChild(tip) } return tip };
+  function show(el) {
+    const t = box(); t.textContent = el.dataset.fdTip; t.style.display = "block";
+    const r = el.getBoundingClientRect(), w = t.offsetWidth;
+    t.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left)) + "px"; t.style.top = (r.bottom + 6) + "px";
+  }
+  function hide() { if (tip) tip.style.display = "none"; pinned = null }
+  const at = e => e.target && e.target.closest ? e.target.closest("[data-fd-tip]") : null;
+  document.addEventListener("pointerover", e => { const el = at(e); if (el && !pinned) show(el) });
+  document.addEventListener("pointerout", e => { const el = at(e); if (el && !pinned && !el.contains(e.relatedTarget)) hide() });
+  document.addEventListener("click", e => { const el = at(e);
+    if (el) { e.preventDefault(); e.stopPropagation(); if (pinned === el) hide(); else { show(el); pinned = el } } else if (pinned) hide() }, true);   // a click on it shows the text only (on a card, it does not open the card)
+  document.addEventListener("keydown", e => { if (e.key === "Escape") hide() });
+  window.addEventListener("scroll", () => { if (tip && tip.style.display === "block") hide() }, true);
 })();
