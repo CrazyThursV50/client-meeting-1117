@@ -143,3 +143,5 @@ nav.navbar .navbar-title-text > a { cursor: pointer; }
 .tnotes li, .tnotes p { font-size: 0.86rem; line-height: 1.5; color: #333C47; margin-bottom: 0.45rem; }
 .fd-rules { margin-top: 1.2rem; max-width: 70rem; }
 .fd-rules ul { padding-left: 1.2rem; margin: 0; }
+/* the page's one scrolling box: macOS shows its scrollbar only while scrolling, drawn over the content's right edge (Safari and Chrome), which covered the cards' last column; keep that edge clear */
+#card-tabset-2-1 > .card-body > .cell-output { padding-right: 14px; }
