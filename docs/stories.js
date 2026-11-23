@@ -34,8 +34,7 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
     </div>
     <section class="fd-rules"><h3>Rules used everywhere</h3><div class="fd-rules-body"></div></section>
     <p class="fd-keep"><b>Keep in mind.</b> Agencies fill in these reports themselves, and categories can change from year to year. foia.gov has no FY2008
-      figures for 26 agencies; they appear in FY2009–10. The reports show what changed, not why. Student prototype for MuckRock
-      (BU Spark! DS 701); not an official MuckRock product.</p>
+      figures for 26 agencies; they appear in FY2009–10. The reports show what changed, not why.</p>
   </div>`;
   function openGuide(card) { const b = card && card.querySelector(".bslib-full-screen-enter"); if (b) b.click() }
   function fix(qh) {
