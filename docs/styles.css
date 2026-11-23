@@ -233,3 +233,8 @@ body.noq .card:has(> .card-header .nav-tabs) > .card-header { display: none; }
 .qlegend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; }
 .qcharts > .qwide { grid-column: 1 / -1; }
 .qsub { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid #e7ebf1; }
+/* "Built from" folds to one line; the line says it opens */
+details.qsrc > summary { cursor: pointer; width: fit-content; margin-bottom: 0; }
+details.qsrc[open] > summary { margin-bottom: 0.45rem; }
+details.qsrc > summary::after { content: " · show"; color: var(--t-accent-ink, #1f4f8a); letter-spacing: 0.04em; }
+details.qsrc[open] > summary::after { content: " · hide"; }
