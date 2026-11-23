@@ -16,7 +16,7 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
         <p>In a chart by agency, click a row to open that agency or component; click the gold row (the one open) to go back up a level; double-click a component's row to go back to all agencies.</p>
         <p class="fd-small">The dashboard’s name in the top bar goes back to the overview; so does clicking a selected question again. “Reset” (top right) puts every choice back to how the dashboard opens: all agencies, all years, nothing compared, and all reporting agencies added up. It stays on the page you are on.</p></section>
       <section><h3>Choosing what you see</h3>
-        <dl><dt>Agency (under the title, with Component and Compare with)</dt><dd>“All agencies (government total)”, or one agency. “Hide choices” folds this row to one line that says what is chosen.</dd>
+        <dl><dt>Agency (under the title, with Component and Compare with)</dt><dd>“All agencies (government total)”, or one agency. “Hide choices” folds this row to one line that says what is chosen; clicking the question's number (“Question 1”, or “Overview”) does the same for the title and the years. Both give the charts more room.</dd>
           <dt>Component</dt><dd>An office inside the agency you picked.</dd>
           <dt>Fiscal years (top right)</dt><dd>Pick All years, Last 10, Last 5 or the latest year; or drag the two handles on the year slider (the charts follow when you let go). Clicking a year moves the nearer handle there; double-clicking a year shows that year only. The numbers in the cards and the charts by agency are for the last year chosen.</dd>
           <dt>Compare with (up to 5)</dt><dd>Adds agencies or components to compare: the cards get a row for each, and each gets its own chart; × removes one. The charts by agency mark the ones compared, and “Ranked within”, above them, switches to the agency of one compared, to see its components.</dd>
@@ -42,7 +42,7 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
     card.classList.add("fd-card");
     if (!card.querySelector(".fd-guide")) (qh.closest(".card-body") || card).insertAdjacentHTML("beforeend", GUIDE);
     const qn = qh.querySelector(".qnum"), name = qn ? qn.textContent.trim() : "";
-    if (/^Question [1-6]$/.test(name)) {   // drop "who · years" under the title (the sidebar and the year buttons show both); keep coverage and one-year warnings
+    if (/^(Question [1-6]|Overview)$/.test(name)) {   // drop "who · years" under the title (the agency row and the years show both; the overview's "headline numbers" too); keep coverage and one-year warnings
       const sel = qh.querySelector(".sel");
       if (sel) { [...sel.childNodes].forEach(n => { if (!(n.nodeType === 1 && n.classList.contains("warn"))) n.remove() });
         const w = sel.querySelector(".warn"); if (w) w.textContent = w.textContent.replace(/^[\s\u00a0]*·\s*/, "");
@@ -196,6 +196,9 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
 (function () {
   const IDS = ["ojs-cell-17", "ojs-cell-18", "ojs-cell-21", "ojs-cell-22"];   // Agency, Component, Compare with, Agencies added up in the total
   function show(bar, tog, hide) { bar.classList.toggle("fd-achide", hide); const t = hide ? "Show choices ▾" : "Hide choices ▴"; if (tog.textContent !== t) tog.textContent = t; tog.setAttribute("aria-expanded", String(!hide)) }
+  // the question's title and the years fold apart from the agency row: a click on "Question 1" (or "Overview") folds them, and
+  // the line then reads "Question 1 · its name · the years"; another click opens them
+  function fold(card, hide) { card.classList.toggle("fd-hdfold", hide); card.querySelectorAll(".qhead > .qnum").forEach(q => q.setAttribute("aria-expanded", String(!hide))) }
   function place() {
     const card = document.querySelector(".card.fd-card.fd-has-tl"), body = card && card.querySelector(":scope > .card-body");
     const cells = IDS.map(id => document.getElementById(id));
@@ -204,6 +207,19 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
     if (!bar) { bar = document.createElement("div"); bar.className = "fd-acbar"; bar.setAttribute("role", "group");
       bar.setAttribute("aria-label", "Agency, component and comparison"); body.appendChild(bar) }
     for (const c of cells) if (c.parentElement !== bar) bar.appendChild(c);
+    const qh = card.querySelector(".qhead"), qn = qh && qh.querySelector(":scope > .qnum");
+    if (qn && !qh.dataset.fdHd) {   // the header is drawn anew when the question changes: set it up again
+      const tt = document.createElement("span"); tt.className = "fd-qtitle";   // the title after "Question 1" is loose text: in a span, it can be hidden
+      [...qh.childNodes].filter(n => n !== qn && !(n.nodeType === 1 && n.classList.contains("sel"))).forEach(n => tt.appendChild(n));
+      const hdSum = document.createElement("span"); hdSum.className = "fd-hdsum"; qn.after(hdSum, tt);
+      const go = () => fold(card, !card.classList.contains("fd-hdfold"));
+      qn.setAttribute("role", "button"); qn.tabIndex = 0; qn.setAttribute("aria-label", `${qn.textContent.trim()}: fold or open the title and the years`);
+      qn.addEventListener("click", go); qn.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go() } });
+      qh.dataset.fdHd = "1"; fold(card, card.classList.contains("fd-hdfold"));   // open when the page opens; a fold is kept
+    }
+    const qb = document.querySelector(".qbtn.on"), yrs = document.querySelector(".fd-tl .tl-label"), hdSum = qh && qh.querySelector(".fd-hdsum");
+    const line = [qb ? qb.textContent.trim().replace(/^\d+\s*/, "") : "", yrs ? yrs.textContent : ""].filter(Boolean).map(x => ` · ${x}`).join("");
+    if (hdSum && hdSum.textContent !== line) hdSum.textContent = line
     let tog = bar.querySelector(":scope > .fd-actog"), sum = bar.querySelector(":scope > .fd-acsum");
     if (!tog) { tog = document.createElement("button"); tog.type = "button"; tog.className = "fd-actog"; sum = document.createElement("div"); sum.className = "fd-acsum"; bar.prepend(sum); bar.append(tog)
       tog.addEventListener("click", () => show(bar, tog, !bar.classList.contains("fd-achide")))

@@ -165,3 +165,17 @@ nav.navbar .navbar-title-text > a { cursor: pointer; }
   font-size: 0.8rem; line-height: 1.45; font-weight: 400; letter-spacing: 0; text-transform: none; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18); pointer-events: none; }
 /* no "expand" buttons on the cards: the guide still opens full screen, from the sidebar's link (stories.js clicks the hidden button) */
 .bslib-full-screen-enter { display: none !important; }
+/* a click on "Question 1" (or "Overview") folds the title and the years to that one line, apart from the agency row (stories.js) */
+.qhead[data-fd-hd] > .qnum { display: block; width: fit-content; cursor: pointer; user-select: none; }   /* a line of its own, as before (inline, it sat in the title's tall line: 15px more) */
+.qhead[data-fd-hd] > .qnum:focus:not(:focus-visible) { outline: none; }   /* no box after a click; a keyboard still shows it */
+.qhead[data-fd-hd] > .qnum:hover { text-decoration: underline; text-underline-offset: 3px; }
+.qhead[data-fd-hd] > .qnum::after { content: "▴"; display: inline-block; margin-left: 0.4em; font-size: 0.85em; }
+.card.fd-card.fd-hdfold .qhead[data-fd-hd] > .qnum::after { content: "▾"; }
+.qhead[data-fd-hd] > .fd-qtitle { display: block; }
+.fd-hdsum { display: none; }
+.card.fd-card.fd-hdfold .qhead > .fd-qtitle, .card.fd-card.fd-hdfold .qhead > .sel, .card.fd-card.fd-hdfold .fd-tl { display: none !important; }
+.card.fd-card.fd-hdfold .qhead { font-size: 0.95rem; line-height: 1.4; }   /* folded: one short line */
+.card.fd-card.fd-hdfold .qhead[data-fd-hd] > .qnum { display: inline-block; margin-bottom: 0; }
+.card.fd-card.fd-hdfold .qhead > .fd-hdsum { display: inline; font-size: 0.95rem; font-weight: 600; color: var(--t-ink, #212529); }
+.card.fd-card.fd-hdfold.fd-has-tl > .card-body { grid-template-columns: minmax(0, 1fr); }
+.card.fd-card.fd-hdfold .fd-acbar { margin-top: 0.4rem; padding-top: 0.4rem; }
