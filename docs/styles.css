@@ -244,3 +244,4 @@ details.qsrc[open] > summary::after { content: " · hide"; }
 .qwithin button { border: 1px solid var(--t-line, #c9d6ea); background: var(--t-bg, #fff); color: var(--t-ink, #212529); border-radius: 0; padding: 2px 10px; font-size: 0.82rem; cursor: pointer; }
 .qwithin button:hover { background: var(--t-hover, #eef3fa); }
 .qwithin button.on { background: var(--t-on-bg, #4582CC); border-color: var(--t-on-bg, #4582CC); color: var(--t-on-ink, #fff); }
+.qwithin.qpad { visibility: hidden; }   /* the height of a "Showing" / "Ranked within" row, beside one, so two charts start level */
