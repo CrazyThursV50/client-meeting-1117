@@ -19,7 +19,7 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
         <dl><dt>Agency (under the title, with Component and Compare with)</dt><dd>“All agencies (government total)”, or one agency. “Hide choices” folds this row to one line that says what is chosen; clicking the question's number (“Question 1”, or “Overview”) does the same for the title and the years. Both give the charts more room.</dd>
           <dt>Component</dt><dd>An office inside the agency you picked.</dd>
           <dt>Fiscal years (top right)</dt><dd>Pick All years, Last 10, Last 5 or the latest year; or drag the two handles on the year slider (the charts follow when you let go). Clicking a year moves the nearer handle there; double-clicking a year shows that year only. The numbers in the cards and the charts by agency are for the last year chosen.</dd>
-          <dt>Compare with (up to 5)</dt><dd>Adds agencies or components to compare: the cards get a row for each, and the chart over time shows one at a time, picked under “Showing”; × removes one. Agencies can be compared with each other; a component only within its own agency, with the agency’s total or its other components, because components differ too much in size and make-up from one agency to the next. To compare with all agencies, choose “All agencies (government total)” as the Agency. Choices that do not fit are greyed out. The charts by agency mark the ones compared, and “Ranked within”, above them, switches to the agency of one compared, to see its components.</dd>
+          <dt>Compare with (up to 5)</dt><dd>Adds agencies or components to compare: the cards get a row for each, and the chart over time shows one at a time, picked under “Showing”; × removes one. Agencies can be compared with each other; a component only within its own agency, with the agency’s total or its other components, because components differ too much in size and make-up from one agency to the next. To compare with all agencies, choose “All agencies (government total)” as the Agency. Choices that do not fit are greyed out. With a component chosen above, the first list is set to its agency; with an agency chosen, it starts on that agency, to add its components. The charts by agency mark the ones compared, and “Ranked within”, above them, switches to the agency of one compared, to see its components.</dd>
           <dt>Agencies added up in the total</dt><dd>All reporting agencies (71–122 a year), or only the 70 that reported all 18 years, so a total does not grow just because more agencies report.</dd></dl>
 </section>
       <section><h3>Words to know</h3>
@@ -331,6 +331,8 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
         const [lv, a] = k.split("|"), as = await waitFor(() => document.querySelector("select.cmp-agency"));
         if (!as || ![...as.options].some(o => o.value === a)) continue;
         as.value = a; fire(as, "change"); await sleep(250);
+        if (lv === "A" && !cmpNow().includes(k) && !(window.fdMainLine && window.fdMainLine() === k)) {   // the selection's own agency: choosing it adds nothing (see "Compare with")
+          const cs = document.querySelector("select.cmp-comp"); if (cs && [...cs.options].some(o => o.value === "")) { cs.disabled = false; cs.value = ""; fire(cs, "change"); await sleep(250) } }
         if (lv === "C") { const cs = await waitFor(() => { const s = document.querySelector("select.cmp-comp"); return s && [...s.options].some(o => o.value === k) && s });
           if (cs) { cs.value = k; fire(cs, "change"); await sleep(250) } }
       }
@@ -472,8 +474,14 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
    too much in size and make-up, are never on one chart, and neither is a component with another agency's total.
    The rule counts the Agency and Component chosen above as one of the lines. Choices that would break it are greyed out in
    the two "Compare with" lists, with a line saying why. When the Agency or Component above changes, or a link opens, a line
-   that no longer fits is taken out by clicking its ×, the way a user would, and a note names it. The dashboard's own
-   "Compare with" input is not changed. ---------- */
+   that no longer fits is taken out by clicking its ×, the way a user would, and a note names it.
+   Nov. 23 (user): a component chosen above can only be compared within its agency, so the first "Compare with" list is set
+   to that agency and locked, and the second offers the agency as a whole and its other components; nothing is added until
+   one is chosen there. A whole agency chosen above: the first list starts on it (its components one click away) and can be
+   changed to another agency, whose components then cannot be added, so the second list says "Whole agency only". Choosing
+   the agency of the selection above lists its components and adds nothing (before, it added the agency, or the selection
+   again). The dashboard's "Compare with" input has two hooks for this: preset (fill the lists without adding) and skipAdd.
+   ---------- */
 (function () {
   const formOf = lab => { const l = [...document.querySelectorAll("label")].find(x => x.textContent.trim() === lab); return l && l.closest("form") };
   const selOf = lab => { const f = formOf(lab); return f && f.querySelector("select") };
@@ -482,14 +490,18 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
   // component already there to be its own
   const fits = (have, k) => isComp(k) ? have.every(h => fam(h) === fam(k)) : have.every(h => !isComp(h) || fam(h) === fam(k));
   const RULE = "Greyed out: a component is compared only within its own agency; agencies can be compared with each other.";
+  const RULE2 = "A component is compared only within its own agency; agencies can be compared with each other.";
   function mainLine() {   // the Agency and Component chosen above, as a line key; none for all agencies
     const ag = selOf("Agency"); if (!ag || !ag.options.length || ag.value === ag.options[0].value) return null;
     const a = fdAgency(ag.selectedOptions[0].textContent.trim()), cs = selOf("Component");
-    return cs && !cs.disabled && cs.options.length && cs.value !== cs.options[0].value ? `C|${a}|${cs.selectedOptions[0].textContent.trim()}` : `A|${a}`;
+    const t = cs && !cs.disabled && cs.options.length && cs.value !== cs.options[0].value ? cs.selectedOptions[0].textContent.trim() : null;
+    return t ? `C|${a}|${(t.match(/\(([^()]+)\)$/) || [null, t])[1]}` : `A|${a}`;   // a component as "Compare with" keys it: by the short code in brackets
   }
   let removed = [], removedAt = 0, busy = false;   // names taken out in the last few seconds
   const taken = new Set();   // agencies of the lines just taken out
   const tries = new Map();   // a line whose × did not take it out is not clicked again and again
+  let presetFor, presetVal = "";   // the selection the first list was last set for, and the agency it was set to
+  window.fdMainLine = () => mainLine();   // for the link restore
   function note(box) {
     let n = box.querySelector(".fd-cmp-note");
     if (!n) { n = document.createElement("div"); n.className = "fd-cmp-note"; n.setAttribute("aria-live", "polite"); (box.querySelector(".chips") || box).before(n) }
@@ -497,6 +509,7 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
   }
   function check() {
     const box = document.querySelector("div.cmp"); if (!box || !Array.isArray(box.value) || busy) return;
+    if (!box.skipAdd) box.skipAdd = a => { const mm = mainLine(); return !!mm && fam(mm) === fdAgency(a) };   // asked by the input when an agency is chosen
     if (window.fdRestoring) { later(300); return }   // a link adds a component's agency first, then the component: judge the list once it is complete
     const m = mainLine(), have = m ? [m] : [], out = [];
     for (const k of box.value) (fits(have, k) ? have : out).push(k);
@@ -509,13 +522,34 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
     const as = box.querySelector("select.cmp-agency"), cs = box.querySelector("select.cmp-comp");
     // the two lists still showing the agency of a line just taken out, or an agency that can no longer be added: back to
     // their first state, as "Clear all" leaves them
-    if (as && as.value && (taken.has(fdAgency(as.value)) || !fits(have, `A|${as.value}`))) { as.value = ""; if (cs) { cs.replaceChildren(new Option("Whole agency (all components)", "")); cs.disabled = true } }
+    const own = m && as ? [...as.options].find(o => o.value && fdAgency(o.value) === fam(m)) : null;   // the selection's agency in the first list
+    const first = () => { as.value = ""; if (cs) { cs.replaceChildren(new Option("Whole agency (all components)", "")); cs.disabled = true } };
+    if (as && as.value && !(own && as.value === own.value) && (taken.has(fdAgency(as.value)) || !fits(have, `A|${as.value}`))) first();
     taken.clear();
-    let grey = false;
+    // the first list: locked on the agency of a component chosen above; set once to the agency chosen above; back to its first
+    // state when the list was only set by this and all agencies are chosen above
+    const lock = !!(m && isComp(m) && own);
+    if (as && box.preset) {
+      if (lock && as.value !== own.value) { box.preset(own.value); presetVal = own.value }
+      else if (!lock && own && !as.value && presetFor !== m) { box.preset(own.value); presetVal = own.value }
+      else if (!m && as.value && as.value === presetVal && presetFor) first();
+      presetFor = m;
+      as.disabled = lock; as.title = lock ? "Set by the component chosen above: it is compared only within its own agency" : "";
+    }
+    // "Whole agency only" is set here, not by the dashboard: undone first, then judged again on the lines as they are now
+    if (cs && cs.dataset.fdWhole) { delete cs.dataset.fdWhole; if (as && as.value && [...cs.options].some(o => o.value)) { cs.disabled = false; cs.options[0].text = "Whole agency (all components)" } }
+    let grey = false, wholeOnly = false;
     if (as) [...as.options].forEach(o => { if (!o.value) return; o.disabled = !fits(have, `A|${o.value}`); grey = grey || o.disabled });
-    if (cs && !cs.disabled) [...cs.options].forEach(o => { if (!o.value) return; o.disabled = !fits(have, o.value); grey = grey || o.disabled });
+    if (cs && !cs.disabled) {
+      [...cs.options].forEach(o => { if (!o.value) { o.disabled = !!(m && !isComp(m) && own && as.value === own.value); return }   // the agency chosen above, as a whole: already on the chart
+        const self = o.value === m || (m && isComp(m) && o.text.trim() === (selOf("Component") || {selectedOptions: [{}]}).selectedOptions[0].textContent?.trim());   // the component chosen above
+        o.disabled = !fits(have, o.value) || self; grey = grey || (o.disabled && !self) });
+      const comps = [...cs.options].filter(o => o.value);
+      if (comps.length && comps.every(o => o.disabled) && !comps.some(o => o.value === m)) { cs.options[0].text = "Whole agency only"; cs.value = ""; cs.disabled = true; cs.dataset.fdWhole = "1"; wholeOnly = true; grey = false }   // another agency's components: none can be added
+    }
+    if (lock) grey = false;   // the locked list's greyed agencies cannot be seen
     const n = note(box), recent = removed.length > 0 && Date.now() - removedAt < 8000;
-    const text = recent ? `Taken out: ${removed.join("; ")}. A component is compared only within its own agency.` : grey ? RULE : "";
+    const text = recent ? `Taken out: ${removed.join("; ")}. A component is compared only within its own agency.` : lock || wholeOnly ? RULE2 : grey ? RULE : "";
     if (n.textContent !== text) n.textContent = text;
     n.classList.toggle("fd-warn", !!recent); n.hidden = !text;
     if (!recent) removed = [];
