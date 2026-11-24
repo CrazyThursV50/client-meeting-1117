@@ -245,3 +245,5 @@ details.qsrc[open] > summary::after { content: " · hide"; }
 .qwithin button:hover { background: var(--t-hover, #eef3fa); }
 .qwithin button.on { background: var(--t-on-bg, #4582CC); border-color: var(--t-on-bg, #4582CC); color: var(--t-on-ink, #fff); }
 .qwithin.qpad { visibility: hidden; }   /* the height of a "Showing" / "Ranked within" row, beside one, so two charts start level */
+.qfig svg a text { text-decoration: underline; cursor: pointer; }   /* a link in a chart (question 4: an exemption's code opens its text in the law) */
+.qfig svg a:hover text { fill: #21304a; }
