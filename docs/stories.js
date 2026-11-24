@@ -290,7 +290,7 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
   const later = () => { clearTimeout(timer); timer = setTimeout(sync, 400) };
   ["input", "change", "click"].forEach(t => document.addEventListener(t, later, true));
   async function restore(p) {
-    restoring = true;
+    restoring = true; window.fdRestoring = true;   // the "Compare with" rule waits until the link is restored
     try {
       await waitFor(() => document.querySelector(".qpick") && selOf("Agency") && document.querySelectorAll(".years select").length === 2);
       const ys = [...document.querySelectorAll(".years select")], f = +p.get("from"), t = +p.get("to");
@@ -322,7 +322,7 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
           if (ty) { const s = await waitFor(() => selOf("Data type")); const o = s && [...s.options].find(o => o.textContent.trim().startsWith(ty)); if (o && s.value !== o.value) { s.value = o.value; fire(s, "input", "change"); await sleep(500) } }
           if (m) { const s = await waitFor(() => { const x = selOf("Measure"); return x && [...x.options].some(o => o.textContent.trim() === m) && x }); if (s) { s.value = [...s.options].find(o => o.textContent.trim() === m).value; fire(s, "input", "change") } } } }
       await sleep(600);
-    } finally { restoring = false; sync() }
+    } finally { restoring = false; window.fdRestoring = false; sync() }
   }
   function button() {   // in the sidebar under the questions, where the hint "Click a selected item again to clear it." was (hidden in stories.css)
     const qp = document.querySelector(".qpick"); if (!qp || document.querySelector(".fd-copy")) return;
@@ -449,6 +449,7 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
     return cs && !cs.disabled && cs.options.length && cs.value !== cs.options[0].value ? `C|${a}|${cs.selectedOptions[0].textContent.trim()}` : `A|${a}`;
   }
   let removed = [], removedAt = 0, busy = false;   // names taken out in the last few seconds
+  const taken = new Set();   // agencies of the lines just taken out
   const tries = new Map();   // a line whose × did not take it out is not clicked again and again
   function note(box) {
     let n = box.querySelector(".fd-cmp-note");
@@ -457,18 +458,20 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
   }
   function check() {
     const box = document.querySelector("div.cmp"); if (!box || !Array.isArray(box.value) || busy) return;
+    if (window.fdRestoring) { later(300); return }   // a link adds a component's agency first, then the component: judge the list once it is complete
     const m = mainLine(), have = m ? [m] : [], out = [];
     for (const k of box.value) (fits(have, k) ? have : out).push(k);
     if (out.length) {   // take out the first line that does not fit; the dashboard redraws the chips and this runs again
       const i = box.value.indexOf(out[0]), chip = box.querySelectorAll(".chips .chip")[i], x = chip && chip.querySelector("button");
       const n = (tries.get(out[0]) || 0) + 1; tries.set(out[0], n);
-      if (x && n <= 3) { if (Date.now() - removedAt >= 8000) removed = []; removed.push(chip.textContent.replace("×", "").trim()); removedAt = Date.now(); busy = true; x.click(); setTimeout(() => { busy = false; check() }, 60); return }
+      if (x && n <= 3) { if (Date.now() - removedAt >= 8000) removed = []; removed.push(chip.textContent.replace("×", "").trim()); taken.add(fam(out[0])); removedAt = Date.now(); busy = true; x.click(); setTimeout(() => { busy = false; check() }, 60); return }
     }
     if (!out.length) tries.clear();
     const as = box.querySelector("select.cmp-agency"), cs = box.querySelector("select.cmp-comp");
-    // the two lists still showing an agency that can no longer be added (its line was taken out, or the Agency above
-    // changed): back to their first state, as "Clear all" leaves them
-    if (as && as.value && !fits(have, `A|${as.value}`)) { as.value = ""; if (cs) { cs.replaceChildren(new Option("Whole agency (all components)", "")); cs.disabled = true } }
+    // the two lists still showing the agency of a line just taken out, or an agency that can no longer be added: back to
+    // their first state, as "Clear all" leaves them
+    if (as && as.value && (taken.has(fdAgency(as.value)) || !fits(have, `A|${as.value}`))) { as.value = ""; if (cs) { cs.replaceChildren(new Option("Whole agency (all components)", "")); cs.disabled = true } }
+    taken.clear();
     let grey = false;
     if (as) [...as.options].forEach(o => { if (!o.value) return; o.disabled = !fits(have, `A|${o.value}`); grey = grey || o.disabled });
     if (cs && !cs.disabled) [...cs.options].forEach(o => { if (!o.value) return; o.disabled = !fits(have, o.value); grey = grey || o.disabled });
