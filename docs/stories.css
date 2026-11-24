@@ -60,6 +60,9 @@
 .fd-acbar .cmp > .cmp-label, .fd-acbar .cmp > .chips, .fd-acbar .cmp > .side-note { grid-column: 1 / -1; }
 .fd-acbar .cmp select { margin-bottom: 0; }
 .fd-acbar .cmp > .side-note { font-size: 0.74rem; margin-top: 3px; }
+/* "Compare with": why some choices are greyed out, or which line was taken out */
+.fd-cmp-note { grid-column: 1 / -1; font-size: 0.74rem; color: #5f6368; margin-top: 3px; }
+.fd-cmp-note.fd-warn { color: #8a5a00; }
 /* Agencies added up in the total: a row of its own across the card, the label and the two choices on one line; the explanation
    is the label's tooltip (ⓘ) */
 .fd-acbar > #ojs-cell-22 form { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 14px; margin-top: 2px; }
