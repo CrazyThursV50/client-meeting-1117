@@ -7,20 +7,21 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
     <h2>How to use this dashboard</h2>
     <div class="fd-cols">
       <section><h3>What this is</h3>
-        <p>Every federal agency files an annual FOIA report. This dashboard puts the reports for FY2008–FY2025 side by side, for agencies
+        <p>Every federal agency files an annual FOIA report. This dashboard puts the reports for <span class="fd-yrs">FY2008–FY2025</span> side by side, for agencies
         and for their components: offices inside an agency, such as ICE inside DHS.</p>
         <p>Data: foia.gov annual reports<span class="fd-when" data-pre=", last updated "></span>. A report an agency files after that day is not in the dashboard yet.</p>
         <h3>Two ways in</h3>
-        <ol><li><b>Overview</b>, the start page: ten headline numbers, for all agencies or for the agency or component you pick. Click a card to open it: what its number means, what stands out in the years chosen, and a larger chart. The agency, component and years can still be changed while a card is open.</li>
-          <li><b>Questions 1–6</b>, on the left: Requests received &amp; processed · Response time · Backlog, staff &amp; cost · Outcomes &amp; exemptions · Appeals · Backlog vs intake. Each page has up to three numbers, each with how it is worked out, a chart over time and a chart by agency; under them, “Built from” opens the report tables and columns used.</li></ol>
+        <ol><li><b>Overview</b>, the start page: ten headline numbers, for all agencies or for the agency or component you pick, one for each question or more. Each card's small chart marks the first and the last year chosen: the first value at the left, the change since then at the right (“×2.6” for a count, points for a share). The “i” says in a sentence what the number is; hover over the card for what stands out in the years chosen; click it for a larger chart. Three cards are shaded to stand out: the backlog, exemptions applied and requests released in full. What a card says is worked out from the data each time, so it follows your choices and the next refresh. The agency, component and years can still be changed while a card is open.</li>
+          <li><b>Questions 1–6</b>, on the left: Requests received &amp; processed · Response time · Backlog, staff &amp; cost · Outcomes &amp; exemptions · Appeals · Backlog vs intake. Each page has up to three numbers, each with how it is worked out, a chart over time and a chart by agency (and on Question 4, the exemptions used); under them, “Built from” opens the report tables and columns used.</li></ol>
         <p>In a chart by agency, click a row to open that agency or component; click the gold row (the one open) to go back up a level; double-click a component's row to go back to all agencies.</p>
+        <p>A measure has the same colour on every page: requests received blue, requests processed red, the backlog purple, FOIA staff navy, total cost green; gold marks the agency or component open in a chart by agency. How requests and appeals ended, and the request tracks, have colours of their own, given above their charts.</p>
         <p class="fd-small">The dashboard’s name in the top bar goes back to the overview; so does clicking a selected question again. “Reset” (top right) puts every choice back to how the dashboard opens: all agencies, all years, nothing compared, and all reporting agencies added up. It stays on the page you are on.</p></section>
       <section><h3>Choosing what you see</h3>
         <dl><dt>Agency (under the title, with Component and Compare with)</dt><dd>“All agencies (government total)”, or one agency. “Hide choices” folds this row to one line that says what is chosen; clicking the question's number (“Question 1”, or “Overview”) does the same for the title and the years. Both give the charts more room.</dd>
           <dt>Component</dt><dd>An office inside the agency you picked.</dd>
           <dt>Fiscal years (top right)</dt><dd>Pick All years, Last 10, Last 5 or the latest year; or drag the two handles on the year slider (the charts follow when you let go). Clicking a year moves the nearer handle there; double-clicking a year shows that year only. The numbers in the cards and the charts by agency are for the last year chosen.</dd>
-          <dt>Compare with (up to 5)</dt><dd>Adds agencies or components to compare: the cards get a row for each, and the chart over time shows one at a time, picked under “Showing”; × removes one. Agencies can be compared with each other; a component only within its own agency, with the agency’s total or its other components, because components differ too much in size and make-up from one agency to the next. To compare with all agencies, choose “All agencies (government total)” as the Agency. Choices that do not fit are greyed out. With a component chosen above, the first list is set to its agency; with an agency chosen, it starts on that agency, to add its components. The charts by agency mark the ones compared, and “Ranked within”, above them, switches to the agency of one compared, to see its components.</dd>
-          <dt>Agencies added up in the total</dt><dd>All reporting agencies (71–122 a year), or only the 70 that reported all 18 years, so a total does not grow just because more agencies report.</dd></dl>
+          <dt>Compare with (up to 5)</dt><dd>Adds agencies or components to compare: the cards get a row for each, and the chart over time shows one at a time, picked under “Showing” (on Question 6, backlog ÷ requests received has a line for each); × removes one. Agencies can be compared with each other; a component only within its own agency, with the agency’s total or its other components, because components differ too much in size and make-up from one agency to the next. To compare with all agencies, choose “All agencies (government total)” as the Agency. Choices that do not fit are greyed out. With a component chosen above, the first list is set to its agency; with an agency chosen, it starts on that agency, to add its components. The charts by agency mark the ones compared, and “Ranked within”, above them, switches to the agency of one compared, to see its components.</dd>
+          <dt>Agencies added up in the total</dt><dd>All reporting agencies (<span class="fd-range">71–122</span> a year), or only the <span class="fd-cohort">70 that reported all 18 years</span>, so a total does not grow just because more agencies report.</dd></dl>
 </section>
       <section><h3>Words to know</h3>
         <dl><dt>Processed</dt><dd>Requests an agency closed during the fiscal year.</dd>
@@ -443,8 +444,17 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
       s.textContent = `Data updated ${when}`; nav.appendChild(s);
     }
     document.querySelectorAll(".fd-when:not([data-set])").forEach(el => { el.dataset.set = "1"; el.textContent = (el.dataset.pre || "") + when });
+    // the guide's years and agency counts, from the data (Nov. 26), so they stay right after a refresh
+    if (span) for (const [cls, text] of Object.entries(span)) document.querySelectorAll(`.${cls}:not([data-set])`).forEach(el => { el.dataset.set = "1"; el.textContent = text });
   }
-  DATA.then(D => { when = ap(D.built); place() }).catch(() => {});
+  let span = null;
+  DATA.then(D => {
+    when = ap(D.built);
+    const per = new Map(), seen = new Map();   // agency reports per year; the years each agency reported
+    D.ids.FY.forEach((y, i) => { if (D.ids.level[i] !== "agency") return; per.set(y, (per.get(y) || 0) + 1); const a = D.ids.Agency[i]; (seen.get(a) || seen.set(a, new Set()).get(a)).add(y) });
+    const ys = [...per.keys()].sort((a, b) => a - b), n = ys.length, all = [...seen.values()].filter(s => s.size === n).length, c = [...per.values()];
+    if (n) span = {"fd-yrs": `FY${ys[0]}–FY${ys[n - 1]}`, "fd-range": `${Math.min(...c)}–${Math.max(...c)}`, "fd-cohort": `${all} that reported all ${n} years`};
+    place() }).catch(() => {});
   new MutationObserver(place).observe(document.documentElement, {childList: true, subtree: true});
 })();
 
