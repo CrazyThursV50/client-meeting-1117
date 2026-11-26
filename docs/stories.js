@@ -1,3 +1,8 @@
+/* Quarto's dashboard sidebar code (index_files/libs/quarto-dashboard/components.js, from bslib) ends a sidebar transition
+   with $(sidebar).trigger(...), written for Shiny, where jQuery is loaded. This page has no jQuery, so on a narrow screen,
+   where the sidebar folds, it threw "$ is not defined" (Nov. 26). Those calls only tell Shiny's inputs, which this page
+   does not have; a stand-in that does nothing keeps the library file as Quarto made it. */
+if (typeof window.$ === "undefined") window.$ = () => ({trigger() { return this }});
 // renamed agencies: current name first, former name in brackets (as in the dashboard's own code)
 function fdAgency(a) { return a === "Department of Defense" || a === "Department of War" ? "Department of War (Department of Defense)" : a }
 /* ---------- User guide. It sits in the header card, outside the part the dashboard redraws, and shows when the card is
