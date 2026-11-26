@@ -1,50 +1,38 @@
 # Federal FOIA Dashboard
 
-Prototype of the Federal FOIA Dashboard, built by BU Spark! (DS 701) for MuckRock, with everything needed to
-rebuild it: the data, the scripts that make the data, and the analysis notebooks.
+A dashboard of the federal agencies' annual FOIA reports, FY2008–FY2025, built by a BU Spark! student team (DS 701,
+fall 2026) for MuckRock. This repository holds everything needed to rebuild it: the data, the scripts that make the
+data, the page, and the analysis notebooks.
 
-Branch `main` is prototype v4, shown at the client meeting on Nov 17. Branch `v4a`: the start page is an overview
-of headline numbers, and the storyline cards are no longer on the page. Branch `v4b` (this one) builds the page
-from modules: the annual report's data types are the building blocks, each of the six questions is a set of
-page that opens with its answer and the tables it was built from, and "Build your own" lets the reader work from
-any table.
+**Live page:** https://crazythursv50.github.io/client-meeting-1117/ (branch `main`, served from `docs/`)
 
-**Live page:** https://crazythursv50.github.io/client-meeting-1117/
-
-Student prototype; not an official MuckRock product. All numbers come from the agencies' annual FOIA reports on
-foia.gov (FY2008–FY2025).
+All numbers come from the agencies' annual FOIA reports on foia.gov. The top bar shows the day the data was last
+refreshed.
 
 ## What is on the page
 
-- **Start page: the overview.** Ten cards with the headline numbers (requests received and processed, backlog,
-  appeals, staff, released in full, closed with no records reviewed, exemptions applied, done within 20 working
-  days, cost), for all agencies until an agency, a component or a comparison is chosen. A card shows the number for the last year chosen and its trend.
-  Click it and it opens as a large panel in the cards' place: what the number is, what stands out in the years
-  chosen (highest and lowest year, years in a row above a round level or up or down, largest one-year change,
-  largest share), worked out from the data each time, and a large chart with those points marked. The agency,
-  component, comparison and years can still be changed while a card is open, and the panel follows. From there a
-  button opens the question with the full view.
-- **Questions 1–6: the answer, then where it comes from.** A question opens with its answer for the agency,
-  component and years chosen: a few lines with their numbers and one chart. Under it, "Tables it was built from"
-  shows the data types the answer uses, each as a card listing that table's columns with the ones used marked,
-  and "How it was calculated" writes out each number in the answer (for example "Requests processed ÷ requests
-  received = 1,635,200 ÷ 1,707,434 = 95.8%"). With entries to compare, the answer adds a small table of the same
-  numbers for each of them. Other views of the question are folded away under "More views";
-  "Original charts" switches back to the earlier charts; the Tables tab is unchanged.
-- **Build your own.** The 31 data types (tables) are listed on the left (06, the Exemption 3 statutes, is not in
-  the page's data). Open a table and tick its columns; a column is either ticked or not, so it cannot be added
-  twice. Then choose what to show. Over time: each column, the columns added up, shares of their total, A ÷ B,
-  A − B (each side can be several columns added up), growth with the first year as 100, change from the year
-  before. In the last year chosen: column by column, the largest agencies (or the chosen agency's components),
-  and A against B with one dot per agency or component. Combinations with no meaning are not offered, with the
-  reason shown on the button: medians, averages, days and percentages are not added or divided; columns added
-  together must be of one kind; a table's own total is not added to its parts. "Customize" on a question's
-  extra views opens them here. Views are kept while the page is open; they are not part of the copied link yet.
-- **One set of choices for everything.** The agency, component, comparison and years chosen in the sidebar and
-  with the year buttons apply to every answer and every view. A view with one result (one column, added up, A ÷ B,
-  A − B) draws a line for each compared entry; a view with several columns draws the selection only.
-- **How to use this dashboard** (start page) opens the user guide, including the rules used everywhere.
-- **Analysis notebooks** (not linked from the page yet), the checked analysis behind what the page shows:
+- **Start page.** Ten cards, one or more for each of the six questions: requests received, backlogged requests,
+  backlog ÷ requests received, appeals received, FOIA staff, released in full, closed with no records reviewed,
+  exemptions applied, done within 20 working days, total cost. Each gives the number for the last year chosen, the
+  change from the year before, and a small chart that marks the first and last year chosen (the first value at the
+  left, the change since then at the right: "×2.6" for a count, points for a share). The "i" says in one sentence
+  what the number is; hovering over a card shows what stands out in the years chosen; clicking it opens a larger
+  chart with those points marked and a link to its question. What a card says is worked out from the data each
+  time, so it follows the choices and the next refresh. Three cards are shaded to stand out (backlog, exemptions
+  applied, released in full), as the client suggested at the Nov. 17 meeting. A few lines above the cards say what the dashboard is.
+- **Questions 1–6** (the project's guiding questions, in the sidebar). Each page opens with up to three numbers,
+  each with how it is worked out, then a chart over time and a chart by agency; question 4 adds the exemptions used,
+  folded until opened. "Built from" (folded) lists the report tables and columns the page uses. In a chart by
+  agency, clicking a row opens that agency or component.
+- **Choices that apply everywhere**: agency and component, up to five entries to compare (agencies with each other;
+  a component only within its own agency), the fiscal years (presets or a two-handled slider), and which agencies
+  are added up in the government total (all that reported, or only the agencies that reported every year). "Reset"
+  puts them back; "Copy link to this view" copies an address that opens the same view.
+- **Colours**: a measure has one colour on every page (requests received blue, processed red, backlog purple, FOIA
+  staff navy, total cost green); gold marks the agency or component open in a chart by agency. All colours are from
+  MuckRock's data-visualization palette.
+- **How to use this dashboard** (sidebar) opens the user guide, with the rules used everywhere.
+- **Analysis notebooks** (not linked from the page), the checked analysis behind the project:
   [Requests](https://crazythursv50.github.io/client-meeting-1117/notebooks/S0-request-volume-en.html) ·
   [Outcomes](https://crazythursv50.github.io/client-meeting-1117/notebooks/S1-partial-releases-en.html) ·
   [Appeals](https://crazythursv50.github.io/client-meeting-1117/notebooks/S3-appeals-en.html) ·
@@ -69,7 +57,7 @@ The page itself never calls the API: it reads `docs/data/foia.json`.
 
 | Folder | What is in it |
 |---|---|
-| `docs/` | The page (served by GitHub Pages): `index.html` (the dashboard; its code is inside the file, see "The page's code"), `stories.js` / `stories.css` (guide, year buttons, lists, links), `data/`, and the notebooks as HTML |
+| `docs/` | The page (served by GitHub Pages): `index.html` (the dashboard; its code is inside the file, see "The page's code"), `stories.js` / `stories.css` (guide, year slider, lists, links, short explanations), `styles.css` and `theme.css` (the look), `data/`, and the notebooks as HTML |
 | `data/` | The three component-level tables built from the API (download of 2026-11-02; a second download on 11-06 gave identical tables), the agency-level table, and the data type map |
 | `pipeline/` | API download, table build, checks (`foia_fields.py` holds the definitions they share), and `prep.py` with `column_mapping.csv` (foia.gov's own column names) |
 | `storylines/notebooks/` | The four analysis notebooks (requests, outcomes, appeals, backlog) and `storyline_lib.py`; every figure in their text is checked with an assertion |
@@ -115,6 +103,15 @@ python tools/page_code.py pack cells       # write the edited cells back into do
 
 The guide, the year buttons and the links are plain files: `docs/stories.js`, `docs/stories.css`.
 
+Three things to know before changing a cell:
+
+- **The number of cells must stay the same**, and **a cell must not get a new top-level variable**: the page has one
+  output slot for each, and a cell with an extra one stops working (every variable in it becomes undefined). Put new
+  values inside a function, as `const`.
+- **Do not name a variable `cards`.** Quarto adds `cards[...]` to every `Plot.plot` call to size charts to their card,
+  and a variable of that name breaks them.
+- Styles: `docs/styles.css` (base), `docs/stories.css` (guide and controls), `docs/theme.css` (the look; loaded last).
+
 ## Notes
 
 - **Missing is not zero.** Blank and "N/A" are kept as missing; "<1" (less than a day) is kept as "<1".
@@ -130,4 +127,6 @@ The guide, the year buttons and the links are plain files: `docs/stories.js`, `d
   Department of Defense. The page shows the current name first and the former one in brackets, and `prep.py` keeps
   both spellings as one agency, so a later rename in the data does not split it in two.
 - **Days are working days**, as the annual reports count them; the legal time limit is 20 working days.
+- **The page loads no jQuery.** Quarto's sidebar code calls it once when the sidebar folds on a narrow screen;
+  `stories.js` gives it a stand-in that does nothing.
 - Team repository: https://github.com/BU-Spark/ds-muckrock-liberation
