@@ -166,11 +166,6 @@ nav.navbar .navbar-title-text > a { cursor: pointer; }
 [data-fd-tip] { cursor: pointer; }
 .fd-tip { position: fixed; z-index: 3000; display: none; max-width: 320px; padding: 8px 10px; background: var(--t-ink, #21304a); color: #fff;
   font-size: 0.8rem; line-height: 1.45; font-weight: 400; letter-spacing: 0; text-transform: none; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18); pointer-events: none; }
-/* a start-page card on hover: what stands out (stories.js, data-fd-sum) */
-.fd-tip.fd-sum { max-width: 300px; padding: 9px 12px 8px; }
-.fd-sum-h { font-size: 0.66rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #a4d0ec; margin-bottom: 4px; }
-.fd-sum-l + .fd-sum-l { margin-top: 4px; }
-.fd-sum-f { font-size: 0.7rem; color: #a4d0ec; margin-top: 7px; }
 /* no "expand" buttons on the cards: the guide still opens full screen, from the sidebar's link (stories.js clicks the hidden button) */
 .bslib-full-screen-enter { display: none !important; }
 /* a click on "Question 1" (or "Overview") folds the title and the years to that one line, apart from the agency row (stories.js) */

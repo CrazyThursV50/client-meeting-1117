@@ -459,23 +459,13 @@ function fdAgency(a) { return a === "Department of Defense" || a === "Department
     t.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left)) + "px";
     t.style.top = (r.bottom + 6 + h > window.innerHeight - 8 && r.top - 6 - h > 8 ? r.top - 6 - h : r.bottom + 6) + "px";
   }
-  function show(el) { const t = box(); t.classList.remove("fd-sum"); t.textContent = el.dataset.fdTip; t.style.display = "block"; place(t, el) }
-  // a start-page card (data-fd-sum, Nov. 26): what stands out in the years chosen, shown on hover only, so a click still
-  // opens the card. Lines are split at "\n": the first is a heading, the last a note
-  function showSum(el) {
-    const t = box(), lines = el.dataset.fdSum.split("\n");
-    t.classList.add("fd-sum");
-    t.replaceChildren(...lines.map((l, i) => { const d = document.createElement("div"); d.className = i === 0 ? "fd-sum-h" : i === lines.length - 1 ? "fd-sum-f" : "fd-sum-l"; d.textContent = l; return d }));
-    t.style.display = "block"; place(t, el);
-  }
+  function show(el) { const t = box(); t.textContent = el.dataset.fdTip; t.style.display = "block"; place(t, el) }
   function hide() { if (tip) tip.style.display = "none"; pinned = null }
   const at = e => e.target && e.target.closest ? e.target.closest("[data-fd-tip]") : null;
-  const sumAt = e => { const el = e.target && e.target.closest ? e.target.closest("[data-fd-sum]") : null; return el && el.dataset.fdSum ? el : null };
-  // the card's "i" sits inside the card: over the "i", its own text; anywhere else on the card, the card's
-  document.addEventListener("pointerover", e => { if (pinned) return; const el = at(e); if (el) show(el); else { const c = sumAt(e); if (c) showSum(c) } });
-  document.addEventListener("pointerout", e => { const el = at(e) || sumAt(e); if (el && !pinned && !el.contains(e.relatedTarget)) hide() });
+  document.addEventListener("pointerover", e => { const el = at(e); if (el && !pinned) show(el) });
+  document.addEventListener("pointerout", e => { const el = at(e); if (el && !pinned && !el.contains(e.relatedTarget)) hide() });
   document.addEventListener("click", e => { const el = at(e);
-    if (el) { e.preventDefault(); e.stopPropagation(); if (pinned === el) hide(); else { show(el); pinned = el } } else hide() }, true);   // a click on it shows the text only (on a card, it does not open the card); any other click closes a box that is open
+    if (el) { e.preventDefault(); e.stopPropagation(); if (pinned === el) hide(); else { show(el); pinned = el } } else if (pinned) hide() }, true);   // a click on it shows the text only (on a card, it does not open the card)
   document.addEventListener("keydown", e => { if (e.key === "Escape") hide() });
   window.addEventListener("scroll", () => { if (tip && tip.style.display === "block") hide() }, true);
 })();
