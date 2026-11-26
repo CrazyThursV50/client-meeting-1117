@@ -111,6 +111,11 @@ Three things to know before changing a cell:
 - **Do not name a variable `cards`.** Quarto adds `cards[...]` to every `Plot.plot` call to size charts to their card,
   and a variable of that name breaks them.
 - Styles: `docs/styles.css` (base), `docs/stories.css` (guide and controls), `docs/theme.css` (the look; loaded last).
+- Where things are: `c11` is the start page (`overview()`); `c10` has the question pages (`questionBlocks(q)`, one
+  part per question) and the chart kit they share (`modKit()`); `c01`–`c03` and `c25` hold the colours, data and
+  common settings. `c04`–`c09` are the first version's chart functions: nothing calls `chart1`–`chart6` any more, and
+  `data1`–`data6` / `table1`–`table6` only feed the Tables tab, which is hidden. They are left in place because
+  taking a variable out of a cell has the same risk as adding one.
 
 ## Notes
 

@@ -247,6 +247,9 @@ details.qsrc[open] > summary::after { content: " · hide"; }
 .qwithin.qpad { visibility: hidden; }   /* the height of a "Showing" / "Ranked within" row, beside one, so two charts start level */
 .qfig svg a text { text-decoration: underline; cursor: pointer; }   /* a link in a chart (question 4: an exemption's code opens its text in the law) */
 .qfig svg a:hover text { fill: #21304a; }
-/* question 4: the chart of exemptions, folded like "Built from" (Nov. 26) */
+/* question 4: the chart of exemptions, folded like "Built from" (Nov. 26; its own class, so nothing that looks for "Built from" finds it) */
 details.qex { margin-top: 0.4rem; }
+details.qex > summary { cursor: pointer; width: fit-content; margin-bottom: 0; }
 details.qex[open] > summary { margin-bottom: 0.6rem; }
+details.qex > summary::after { content: " · show"; color: var(--t-accent-ink, #1f4f8a); letter-spacing: 0.04em; }
+details.qex[open] > summary::after { content: " · hide"; }
