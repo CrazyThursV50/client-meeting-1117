@@ -143,9 +143,11 @@ div[class*="-swatches"] { font-family: var(--t-sans) !important; color: var(--t-
 .ocards { gap: 0 22px; }
 .ocard { background: transparent; border: 0; border-top: 2px solid var(--t-line); border-radius: 0; box-shadow: none; padding: 0.7rem 0 1.4rem; }
 .ocard:hover, .ocard:focus-visible { border-color: transparent; border-top: 2px solid var(--t-accent); box-shadow: none; transform: none; }
-/* three cards stand out (client, Nov. 17: backlog, exemptions, released in full): a heavier rule in MuckRock blue, no words */
-.ocard.hl { border-top: 5px solid var(--t-accent); padding-top: calc(0.7rem - 3px); }
+/* three cards stand out (client, Nov. 17: backlog, exemptions, released in full): filled with steel blue 100 from the MuckRock
+   palette under a heavier rule in MuckRock blue, no words (Nov. 26: the rule alone was not enough; a navy fill was too dark) */
+.ocard.hl { background: #e1eef8; border-top: 5px solid var(--t-accent); padding: calc(0.7rem - 3px) 0.7rem 1.4rem; }
 .ocard.hl:hover, .ocard.hl:focus-visible { border-top: 5px solid var(--t-ink); }
+.ocard.hl svg { background: transparent; }   /* the small chart's own white ground would show as a box */
 .ocard.hl .oc-val { color: var(--t-accent-ink); }
 /* the lines above the cards: what the dashboard is, and the note on the agencies counted */
 .ov-intro { font-family: var(--t-sans); color: var(--t-ink2); font-size: 0.95rem; line-height: 1.55; max-width: 62rem; margin: 0.2rem 0 0.9rem; }
