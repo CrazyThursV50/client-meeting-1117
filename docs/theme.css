@@ -186,3 +186,11 @@ div[class*="-swatches"] { font-family: var(--t-sans) !important; color: var(--t-
 .fd-guide h2 { font-family: var(--t-sans); font-weight: 800; letter-spacing: -0.025em; color: var(--t-ink); }
 .fd-guide h3 { font-family: var(--t-sans); font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--t-label); }
 .fd-keep { background: var(--t-hover); border-left-color: var(--t-accent); border-radius: 0; }
+/* question 4 compared (Nov. 26, user): one small chart per entry, one under the other; the chart by component beside them stays in view while they scroll */
+.qmulti .qfig { margin-bottom: 0.4rem; }
+.qmulti .qfig h6 { font-size: 0.92rem; }
+.qmulti .qmulti-h h6 { font-size: 1.05rem; }
+.qmulti .qmulti-h { margin-bottom: 0.2rem; }
+.qcharts.qsticky { align-items: start; }
+.qcharts.qsticky > div:last-child { position: sticky; top: 0.5rem; }
+@media (max-width: 1250px) { .qcharts.qsticky > div:last-child { position: static; } }
